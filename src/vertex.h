@@ -1,12 +1,14 @@
 #ifndef GRAPH_COLOUR_VERTEX_H
 #define GRAPH_COLOUR_VERTEX_H
 
-typedef struct s_vertex {
+typedef struct vertex_s {
     char* name;
+    int name_len;
     int colour;
-    struct s_vertex** neighbours;
-} t_vertex;
+    struct vertex_s** neighbours;
+    int neighbours_len;
+} vertex_t;
 
-t_vertex* create_vertex(const char* name, const int neighbour_count);
+vertex_t* create_vertex(char* name, const int neighbour_count);
 
 #endif // GRAPH_COLOUR_VERTEX_H

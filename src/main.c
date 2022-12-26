@@ -8,16 +8,16 @@
 
 #define MAX_VERTEX_NAME_LENGTH 100
 
-int main(int argc, char** argv)
-{
-    if (argc != 2) 
+int main(int argc, char** argv) {
+    if (argc < 2) {
         usage();
+    }
 
-    if (!strcmp("-h", argv[1])) 
+    if (!strcmp("-h", argv[1])) {
         usage();
+    }
 
-    if (!access(argv[1], F_OK))
-    {
+    if (!access(argv[1], F_OK)) {
         printf("Error: File doesn't exist: %s", argv[1]);
         exit(EXIT_FAILURE);
     }

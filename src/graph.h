@@ -1,16 +1,20 @@
+#include <stdio.h>
+
+#include "vertex.h"
+#include "utils.h"
+
 #ifndef GRAPH_COLOUR_GRAPH_H
 #define GRAPH_COLOUR_GRAPH_H
 
-#include "vertex.h"
+typedef struct graph_s {
+    vtxtree_t* vertices;
+    int vertex_count;
+} graph_t;
 
-typedef struct s_graph {
-    t_vertex** vertices;
-} t_graph;
+graph_t* create_graph(FILE* input_file, int max_name_len);
 
-t_graph* create_graph();
+int write_graph(graph_t* graph, char* filename);
 
-int write_graph(t_graph* graph, char* filename);
-
-void colour_graph(t_graph* graph);
+void colour_graph(graph_t* graph);
 
 #endif // GRAPH_COLOUR_GRAPH_H
