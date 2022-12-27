@@ -41,13 +41,10 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
                     strncpy(vertex_buffer->name, buffer, buflen);
                     buflen = 0;
                     // Insert the vertex into the graph's vertex tree
-                    vtxtree_insert(graph->vertices, vertex_buffer);
+                    graph->vertices = vtxtree_insert(graph->vertices, vertex_buffer);
                     graph->vertex_count++;
-                    if (c == ':') {
-                        status = STATUS_VERTEX_READ_COLOUR;
-                        break;
-                    }
-                    vertex_buffer = NULL;
+                    if (c == ':') status = STATUS_VERTEX_READ_COLOUR;
+                    else vertex_buffer = NULL;
                     if (c == ']') status = STATUS_VERTEX_DONE;
                 } else buffer[buflen++] = c;
                 break;
@@ -61,6 +58,8 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
                     sscanf(colourchars, "%d", &colour);
                     vertex_buffer->colour = colour;
                     vertex_buffer = NULL;
+                    if (c == ',') status = STATUS_VERTEX_READ_NAME;
+                    else status = STATUS_VERTEX_DONE;
                 } else buffer[buflen++] = c;
                 break;
             case STATUS_VERTEX_DONE:
@@ -72,17 +71,12 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
                 }
                 // Find the next '[' character
                 while (c != '[' && c != EOF) c = fgetc(input_file);
-                if (c == EOF) {
-                    status = STATUS_DONE;
-                    break;
-                }
-                status = STATUS_EDGES_READ;
+                if (c == EOF) status = STATUS_DONE;
+                else status = STATUS_EDGES_READ;
                 break;
             case STATUS_EDGES_READ:
-                if (c == '(')
-                    status = STATUS_EDGE_READ_START;
-                if (c == ']')
-                    status = STATUS_DONE;
+                if (c == '(') status = STATUS_EDGE_READ_START;
+                else if (c == ']') status = STATUS_DONE;
                 break;
             case STATUS_EDGE_READ_START:
                 if (c == ',') {

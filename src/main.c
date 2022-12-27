@@ -6,7 +6,7 @@
 #include "graph.h"
 #include "utils.h"
 
-#define MAX_VERTEX_NAME_LEN 100
+#define MAX_VERTEX_NAME_LEN 3
 
 int main(int argc, char** argv) {
     if (argc < 2) {
