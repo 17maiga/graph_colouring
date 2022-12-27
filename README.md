@@ -19,8 +19,8 @@ formatted according to the following convention:
   punctuation characters except the following: `[`, `]`, `,`, `:`. Spaces and 
   tab characters will be systematically skipped.
 - The second line should start with `[` and end with `]`. Between these, any
-  number of edges may be declared, again with no duplicates and separated by
-  commas, using the following syntax: `(start_name,end_name)`.
+  number of edges may be declared, again with no duplicates, using the 
+  following syntax: `(start_name,end_name)`.
 
 Here is an example of a graph definition:
 
