@@ -38,8 +38,9 @@ void delete_vertex(vertex_t* vertex);
  *
  * @param[in] list
  * @param[in] vertex
+ * @param[out] updated_list
  */
-void vtxllist_insert(llist_t* list, vertex_t* vertex);
+llist_t* vtxllist_insert(llist_t* list, vertex_t* vertex);
 
 /**
  * Gets a vertex from a vertex linked list, based on the vertex name.
@@ -58,8 +59,9 @@ vertex_t* vtxllist_get(llist_t* list, char* name);
  *
  * @param[in] tree
  * @param[in] vertex
+ * @param[out] updated_tree
  */
-void vtxtree_insert(bstree_t* tree, vertex_t* vertex);
+bstree_t* vtxtree_insert(bstree_t* tree, vertex_t* vertex);
 
 /**
  * Gets a vertex from a vertex tree, based on the vertex name.

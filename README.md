@@ -25,8 +25,8 @@ formatted according to the following convention:
 Here is an example of a graph definition:
 
 ``` text
-[A,B,C]
-[(A,B),(A,C),(B,C)]
+[A:5,B,C]
+[(A,B)(A,C)(B,C)]
 ```
 
 The program will create a file in the same directory as the input file, with the

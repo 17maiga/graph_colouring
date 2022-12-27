@@ -24,23 +24,23 @@ void delete_vertex(vertex_t* vertex) {
 
 // Linked list interaction
 
-void vtxllist_insert(llist_t* list, vertex_t* vertex) {
-    if (list == NULL) {
+llist_t* vtxllist_insert(llist_t* list, vertex_t* vertex) {
+    if (list == NULL)
         list = create_llist();
+    if (list->value == NULL)
         list->value = vertex;
-    } else {
-        if (!strcmp(vertex->name, ((vertex_t*) list->value)->name)) return;
-        vtxllist_insert(list->next, vertex);
-    }
+    else if (strcmp(vertex->name, ((vertex_t*) list->value)->name) != 0)
+        list->next = vtxllist_insert(list->next, vertex);
+    return list;
 }
 
 vertex_t* vtxllist_get(llist_t* list, char* name) {
-    if (list == NULL) {
+    if (list == NULL || list->value == NULL) {
         printf("Error: vtxllist_get: No such vertex: %s\n", name);
         exit(EXIT_FAILURE);
     }
 
-    if (!strcmp(name, ((vertex_t*) list->value)->name))
+    if (strcmp(name, ((vertex_t*) list->value)->name) == 0)
         return (vertex_t*) list->value;
 
     return vtxllist_get(list->next, name);
@@ -48,18 +48,22 @@ vertex_t* vtxllist_get(llist_t* list, char* name) {
 
 // Tree interaction
 
-void vtxtree_insert(bstree_t* tree, vertex_t* vertex) {
-    if (tree == NULL) {
+bstree_t* vtxtree_insert(bstree_t* tree, vertex_t* vertex) {
+    if (tree == NULL)
         tree = create_tree();
+
+    if (tree->value == NULL)
         tree->value = vertex;
-    } else if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) < 0)
-        vtxtree_insert(tree->lft, vertex);
+    else if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) < 0)
+        tree->lft = vtxtree_insert(tree->lft, vertex);
     else if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) > 0)
-        vtxtree_insert(tree->rgt, vertex);
+        tree->rgt = vtxtree_insert(tree->rgt, vertex);
+
+    return tree;
 }
 
 vertex_t* vtxtree_get(bstree_t* tree, char* name) {
-    if (tree == NULL) {
+    if (tree == NULL || tree->value == NULL) {
         printf("Error: vtxtree_get: No such vertex: %s\n", name);
         exit(EXIT_FAILURE);
     }
@@ -72,16 +76,21 @@ vertex_t* vtxtree_get(bstree_t* tree, char* name) {
     return (vertex_t*) tree->value;
 }
 
-int vtxtree_infix_rec(bstree_t* tree, vertex_t** res, int index) {
-    if (tree == NULL) return index;
-    index = vtxtree_infix_rec(tree->lft, res, index);
-    res[index++] = tree->value;
-    return vtxtree_infix_rec(tree->rgt, res, index);
+vertex_t** vtxtree_infix_rec(bstree_t* tree, vertex_t** arr, int* size) {
+    if (tree != NULL && tree->value != NULL) {
+        vtxtree_infix_rec(tree->lft, arr, size);
+        arr[(*size)++] = tree->value;
+        vtxtree_infix_rec(tree->rgt, arr, size);
+    }
+    return arr;
 }
 
 vertex_t** vtxtree_infix(bstree_t* tree, int vertex_count) {
-    vertex_t** res = malloc(vertex_count * sizeof(vertex_t*)); // FIXME: Free memory when needed
-    if (infix_path_recursive(tree, res, 0) != vertex_count - 1) {
+    vertex_t** res = malloc(vertex_count * sizeof(vertex_t*));
+    int size = 0;
+    res = vtxtree_infix_rec(tree, res, &size);
+    printf("%d", size);
+    if (size != vertex_count) {
         printf("Error: Infix path did not find expected vertex count: %d\n", vertex_count);
         exit(EXIT_FAILURE);
     }
@@ -91,9 +100,9 @@ vertex_t** vtxtree_infix(bstree_t* tree, int vertex_count) {
 // Miscelaneous
 
 void create_edge(vertex_t* start, vertex_t* end) {
-    vtxllist_insert(start->neighbours, end);
+    start->neighbours = vtxllist_insert(start->neighbours, end);
     start->neighbours_len++;
-    vtxllist_insert(end->neighbours, start);
+    end->neighbours = vtxllist_insert(end->neighbours, start);
     end->neighbours_len++;
 }
 

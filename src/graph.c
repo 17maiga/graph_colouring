@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -25,11 +26,11 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
     char buffer[max_name_len];
     vertex_t* vertex_buffer = NULL;
     int status = STATUS_START;
-
     while ((c = fgetc(input_file)) != EOF && status != STATUS_DONE) {
         switch (status) {
             case STATUS_START:
-                if (c == '[') status = STATUS_VERTEX_READ_NAME;
+                if (c == '[')
+                    status = STATUS_VERTEX_READ_NAME;
                 break;
             case STATUS_VERTEX_READ_NAME:
                 if (c == ',' || c == ']' || c == ':') {
@@ -40,28 +41,29 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
                     strncpy(vertex_buffer->name, buffer, buflen);
                     buflen = 0;
                     // Insert the vertex into the graph's vertex tree
-                    vtxtree_insert(graph->vertices, vertex_buffer);
+                    graph->vertices = vtxtree_insert(graph->vertices, vertex_buffer);
                     graph->vertex_count++;
-                    if (c == ':') {
-                        status = STATUS_VERTEX_READ_COLOUR;
-                        break;
-                    }
-                    vertex_buffer = NULL;
+                    if (c == ':') status = STATUS_VERTEX_READ_COLOUR;
+                    else vertex_buffer = NULL;
                     if (c == ']') status = STATUS_VERTEX_DONE;
                 } else buffer[buflen++] = c;
                 break;
             case STATUS_VERTEX_READ_COLOUR:
                 if (c == ',' || c == ']') {
-                    char colourchars[buflen];
+                    char colourchars[buflen + 1];
+                    colourchars[buflen] = '\0';
                     strncpy(colourchars, buffer, buflen);
+                    buflen = 0;
                     int colour;
                     sscanf(colourchars, "%d", &colour);
                     vertex_buffer->colour = colour;
                     vertex_buffer = NULL;
+                    if (c == ',') status = STATUS_VERTEX_READ_NAME;
+                    else status = STATUS_VERTEX_DONE;
                 } else buffer[buflen++] = c;
                 break;
             case STATUS_VERTEX_DONE:
-                // Skip the grapht of the line
+                // Skip to the end of the line
                 while (c != '\n' && c != EOF) c = fgetc(input_file);
                 if (c == EOF) {
                     status = STATUS_DONE;
@@ -69,22 +71,17 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
                 }
                 // Find the next '[' character
                 while (c != '[' && c != EOF) c = fgetc(input_file);
-                if (c == EOF) {
-                    status = STATUS_DONE;
-                    break;
-                }
-                status = STATUS_EDGES_READ;
+                if (c == EOF) status = STATUS_DONE;
+                else status = STATUS_EDGES_READ;
                 break;
             case STATUS_EDGES_READ:
-                if (c == '(') {
-                    status = STATUS_EDGE_READ_START;
-                }
-                if (c == ']')
-                    status = STATUS_DONE;
+                if (c == '(') status = STATUS_EDGE_READ_START;
+                else if (c == ']') status = STATUS_DONE;
                 break;
             case STATUS_EDGE_READ_START:
                 if (c == ',') {
-                    char name[buflen];
+                    char name[buflen+1];
+                    name[buflen] = '\0';
                     strncpy(name, buffer, buflen);
                     buflen = 0;
                     vertex_buffer = vtxtree_get(graph->vertices, name);
@@ -93,7 +90,8 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
                 break;
             case STATUS_EDGE_READ_END:
                 if (c == ')') {
-                    char name[buflen];
+                    char name[buflen+1];
+                    name[buflen] = '\0';
                     strncpy(name, buffer, buflen);
                     buflen = 0;
                     vertex_t* vertex = vtxtree_get(graph->vertices, name);
@@ -111,7 +109,7 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
 }
 
 void write_graph(FILE* output_file, graph_t* graph) {
-    fprintf(output_file, "%d\n[", graph->vertex_count);
+    fprintf(output_file, "[");
     vertex_t** vertices = vtxtree_infix(graph->vertices, graph->vertex_count);
     for (int i = 0; i < graph->vertex_count-1; i++) {
         fprintf(output_file, "%s:%d,", vertices[i]->name, vertices[i]->colour);
@@ -122,4 +120,5 @@ void write_graph(FILE* output_file, graph_t* graph) {
         vtx_print_edges(output_file, vertices[i]);
     }
     fprintf(output_file, "]\n");
+    free(vertices);
 }

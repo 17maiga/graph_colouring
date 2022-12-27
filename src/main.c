@@ -6,7 +6,7 @@
 #include "graph.h"
 #include "utils.h"
 
-#define MAX_VERTEX_NAME_LEN 100
+#define MAX_VERTEX_NAME_LEN 3
 
 int main(int argc, char** argv) {
     if (argc < 2) {
@@ -17,7 +17,9 @@ int main(int argc, char** argv) {
         usage();
     }
 
-    if (!access(argv[1], F_OK)) {
+    printf("%s\n", argv[1]);
+
+    if (access(argv[1], F_OK) != 0) {
         printf("Error: File doesn't exist: %s", argv[1]);
         exit(EXIT_FAILURE);
     }

@@ -7,7 +7,7 @@ TARGET := bin/main
 SRC_EXT := c
 SOURCES := $(shell find $(SRC_DIR) -type f -name *.$(SRC_EXT))
 OBJECTS := $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(SOURCES:.$(SRC_EXT)=.o))
-CFLAGS :=
+CFLAGS := -g
 INC := -I inc
 
 # Execution command
