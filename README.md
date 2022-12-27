@@ -25,7 +25,7 @@ formatted according to the following convention:
 Here is an example of a graph definition:
 
 ``` text
-[A,B,C]
+[A:5,B,C]
 [(A,B),(A,C),(B,C)]
 ```
 

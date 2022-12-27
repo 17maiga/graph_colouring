@@ -17,7 +17,9 @@ int main(int argc, char** argv) {
         usage();
     }
 
-    if (!access(argv[1], F_OK)) {
+    printf("%s\n", argv[1]);
+
+    if (access(argv[1], F_OK) != 0) {
         printf("Error: File doesn't exist: %s", argv[1]);
         exit(EXIT_FAILURE);
     }

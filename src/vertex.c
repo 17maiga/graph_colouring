@@ -35,7 +35,7 @@ void vtxllist_insert(llist_t* list, vertex_t* vertex) {
 }
 
 vertex_t* vtxllist_get(llist_t* list, char* name) {
-    if (list == NULL) {
+    if (list == NULL || list->value == NULL) {
         printf("Error: vtxllist_get: No such vertex: %s\n", name);
         exit(EXIT_FAILURE);
     }
@@ -48,18 +48,20 @@ vertex_t* vtxllist_get(llist_t* list, char* name) {
 
 // Tree interaction
 
+// FIXME: DOES NOT WORK RECURSIVELY :sad_face:
 void vtxtree_insert(bstree_t* tree, vertex_t* vertex) {
-    if (tree == NULL) {
+    if (tree == NULL)
         tree = create_tree();
+    if (tree->value == NULL)
         tree->value = vertex;
-    } else if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) < 0)
+    else if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) < 0)
         vtxtree_insert(tree->lft, vertex);
     else if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) > 0)
         vtxtree_insert(tree->rgt, vertex);
 }
 
 vertex_t* vtxtree_get(bstree_t* tree, char* name) {
-    if (tree == NULL) {
+    if (tree == NULL || tree->value == NULL) {
         printf("Error: vtxtree_get: No such vertex: %s\n", name);
         exit(EXIT_FAILURE);
     }
@@ -73,15 +75,15 @@ vertex_t* vtxtree_get(bstree_t* tree, char* name) {
 }
 
 int vtxtree_infix_rec(bstree_t* tree, vertex_t** res, int index) {
-    if (tree == NULL) return index;
+    if (tree == NULL || tree->value == NULL) return index;
     index = vtxtree_infix_rec(tree->lft, res, index);
     res[index++] = tree->value;
     return vtxtree_infix_rec(tree->rgt, res, index);
 }
 
 vertex_t** vtxtree_infix(bstree_t* tree, int vertex_count) {
-    vertex_t** res = malloc(vertex_count * sizeof(vertex_t*)); // FIXME: Free memory when needed
-    if (infix_path_recursive(tree, res, 0) != vertex_count - 1) {
+    vertex_t** res = malloc(vertex_count * sizeof(vertex_t*));
+    if (vtxtree_infix_rec(tree, res, 0) != vertex_count - 1) {
         printf("Error: Infix path did not find expected vertex count: %d\n", vertex_count);
         exit(EXIT_FAILURE);
     }
