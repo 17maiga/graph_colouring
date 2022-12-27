@@ -13,9 +13,11 @@ color_graph <filename>
 formatted according to the following convention:
 - The first line should start with `[` and end with `]`. Between these, any
   number of vertices may be declared, with no duplicates, simply by writing
-  their names and separating them by commas. Names can be composed of letters,
-  numbers, and punctuation characters except the following: `[`, `]`, `,`.
-  Spaces and tab characters will be systematically skipped.
+  their names and separating them by commas. Optionally, colours may be added
+  to specific vertices, simply by appending a colour number to the end of the
+  name, separated by a `:`. Names can be composed of letters, numbers, and
+  punctuation characters except the following: `[`, `]`, `,`, `:`. Spaces and 
+  tab characters will be systematically skipped.
 - The second line should start with `[` and end with `]`. Between these, any
   number of edges may be declared, again with no duplicates and separated by
   commas, using the following syntax: `(start_name,end_name)`.
