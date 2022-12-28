@@ -4,29 +4,11 @@
 
 #include "vertex.h"
 
-// Structure
-
-vertex_t* create_vertex() {
-    vertex_t* vertex = malloc(sizeof(vertex_t));
-    vertex->name = NULL;
-    vertex->name_len = 0;
-    vertex->colour = 0;
-    vertex->neighbours = create_llist();
-    vertex->neighbours_len = 0;
-    return vertex;
-}
-
-void delete_vertex(vertex_t* vertex) {
-    free(vertex->name);
-    delete_llist(vertex->neighbours);
-    free(vertex);
-}
-
 // Linked list interaction
 
 llist_t* vtxllist_insert(llist_t* list, vertex_t* vertex) {
     if (list == NULL)
-        list = create_llist();
+        list = llist_create();
     if (list->value == NULL)
         list->value = vertex;
     else if (strcmp(vertex->name, ((vertex_t*) list->value)->name) != 0)
@@ -46,50 +28,85 @@ vertex_t* vtxllist_get(llist_t* list, char* name) {
     return vtxllist_get(list->next, name);
 }
 
+void vtxllist_delete(llist_t* list) {
+    if (list != NULL) {
+        // No freeing of the list's value, as it will be freed by the tree's
+        // delete method.
+        vtxllist_delete(list->next);
+    }
+    free(list);
+}
+
+// Structure
+
+vertex_t* vtx_create() {
+    vertex_t* vertex = malloc(sizeof(vertex_t));
+    vertex->name = NULL;
+    vertex->name_len = 0;
+    vertex->colour = 0;
+    vertex->neighbours = llist_create();
+    vertex->neighbours_len = 0;
+    return vertex;
+}
+
+void vtx_delete(vertex_t* vertex) {
+    free(vertex->name);
+    vtxllist_delete(vertex->neighbours);
+    free(vertex);
+}
+
 // Tree interaction
 
-bstree_t* vtxtree_insert(bstree_t* tree, vertex_t* vertex) {
+bstree_t* vtxbstree_insert(bstree_t* tree, vertex_t* vertex) {
     if (tree == NULL)
-        tree = create_tree();
+        tree = bstree_create();
 
     if (tree->value == NULL)
         tree->value = vertex;
     else if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) < 0)
-        tree->lft = vtxtree_insert(tree->lft, vertex);
+        tree->lft = vtxbstree_insert(tree->lft, vertex);
     else if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) > 0)
-        tree->rgt = vtxtree_insert(tree->rgt, vertex);
+        tree->rgt = vtxbstree_insert(tree->rgt, vertex);
 
     return tree;
 }
 
-vertex_t* vtxtree_get(bstree_t* tree, char* name) {
+vertex_t* vtxbstree_get(bstree_t* tree, char* name) {
     if (tree == NULL || tree->value == NULL) {
         printf("Error: vtxtree_get: No such vertex: %s\n", name);
         exit(EXIT_FAILURE);
     }
 
     if (strcmp(name, ((vertex_t*) tree->value)->name) < 0)
-        return vtxtree_get(tree->lft, name);
+        return vtxbstree_get(tree->lft, name);
     else if (strcmp(name, ((vertex_t*) tree->value)->name) > 0)
-        return vtxtree_get(tree->rgt, name);
+        return vtxbstree_get(tree->rgt, name);
 
     return (vertex_t*) tree->value;
 }
 
-vertex_t** vtxtree_infix_rec(bstree_t* tree, vertex_t** arr, int* size) {
+void vtxbstree_delete(bstree_t* tree) {
+    if (tree != NULL) {
+        vtx_delete(tree->value);
+        vtxbstree_delete(tree->lft);
+        vtxbstree_delete(tree->rgt);
+    }
+    free(tree);
+}
+
+vertex_t** vtxbstree_infix_rec(bstree_t* tree, vertex_t** arr, int* size) {
     if (tree != NULL && tree->value != NULL) {
-        vtxtree_infix_rec(tree->lft, arr, size);
+        vtxbstree_infix_rec(tree->lft, arr, size);
         arr[(*size)++] = tree->value;
-        vtxtree_infix_rec(tree->rgt, arr, size);
+        vtxbstree_infix_rec(tree->rgt, arr, size);
     }
     return arr;
 }
 
-vertex_t** vtxtree_infix(bstree_t* tree, int vertex_count) {
+vertex_t** vtxbstree_infix(bstree_t* tree, int vertex_count) {
     vertex_t** res = malloc(vertex_count * sizeof(vertex_t*));
     int size = 0;
-    res = vtxtree_infix_rec(tree, res, &size);
-    printf("%d", size);
+    res = vtxbstree_infix_rec(tree, res, &size);
     if (size != vertex_count) {
         printf("Error: Infix path did not find expected vertex count: %d\n", vertex_count);
         exit(EXIT_FAILURE);
@@ -99,7 +116,9 @@ vertex_t** vtxtree_infix(bstree_t* tree, int vertex_count) {
 
 // Miscelaneous
 
-void create_edge(vertex_t* start, vertex_t* end) {
+void vtx_create_edge(vertex_t* start, vertex_t* end) {
+    if (strcmp(start->name, end->name) == 0)
+        return;
     start->neighbours = vtxllist_insert(start->neighbours, end);
     start->neighbours_len++;
     end->neighbours = vtxllist_insert(end->neighbours, start);

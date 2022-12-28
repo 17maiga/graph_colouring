@@ -18,14 +18,42 @@ typedef struct graph_s {
  *
  * @param[out] graph
  */
-graph_t* create_graph();
+graph_t* gph_create();
 
 /**
  * Frees a graph from memory.
  *
  * @param[in] graph
  */
-void delete_graph(graph_t* graph);
+void gph_delete(graph_t* graph);
+
+// Linked list interaction
+
+/**
+ * Inserts a graph into a graph linked list.
+ * Will insert duplicates.
+ *
+ * @param[in] list
+ * @param[in] graph
+ * @param[out] updated_list
+ */
+llist_t* gphllist_insert(llist_t* list, graph_t* graph);
+
+/**
+ * Gets a graph from a graph linked list, based on the index.
+ * Uses 0-based indexing.
+ * @param[in] list
+ * @param[in] index
+ * @param[out] graph
+ */
+graph_t* gphllist_get(llist_t* list, int index);
+
+/**
+ * Frees a graph linked list from memory.
+ *
+ * @param[in] list
+ */
+void gphllist_delete(llist_t* list);
 
 // File operations
 
@@ -41,21 +69,21 @@ void delete_graph(graph_t* graph);
 #define STATUS_EDGES_DONE         9
 
 /**
- * Reads a graph from an input file.
+ * Reads any number of graphs from an input file.
  *
  * @param[in] input_file
  * @param[in] max_name_len The maximum length possible for a vertex name.
- * @param[out] graph
+ * @param[out] graphs A linked list containing the graphs.
  */
-graph_t* read_graph(FILE* input_file, int max_name_len);
+llist_t* gphs_read(FILE* input_file, int max_name_len);
 
 /**
- * Writes a graph to an output file.
+ * Writes any number of graphs to an output file.
  *
  * @param[in] output_file
- * @param[in] graph
+ * @param[in] graphs A linked list containing the graphs.
  */
-void write_graph(FILE* output_file, graph_t* graph);
+void gphs_write(FILE* output_file, llist_t* graph);
 
 // Processing
 
@@ -64,6 +92,6 @@ void write_graph(FILE* output_file, graph_t* graph);
  *
  * @param[in] graph
  */
-void colour_graph(graph_t* graph);
+void gph_colour(graph_t* graph);
 
 #endif // GRAPH_COLOUR_GRAPH_H

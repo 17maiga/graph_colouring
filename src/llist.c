@@ -2,17 +2,20 @@
 
 #include "llist.h"
 
-llist_t* create_llist() {
+llist_t* llist_create() {
     llist_t* res = malloc(sizeof(llist_t));
     res->value = NULL;
     res->next = NULL;
     return res;
 }
 
-void delete_llist(llist_t* list) {
+void llist_delete(llist_t* list) {
     if (list != NULL) {
-        // No freeing of the node value, as it will be freed in the tree.
-        delete_llist(list->next);
+        // Assumes the list's value does not need to be freed recursively. If a
+        // list is used with a value that does, this function needs to be
+        // reimplemented for the value's data type (see gphllist_delete).
+        free(list->value);
+        llist_delete(list->next);
     }
     free(list);
 }

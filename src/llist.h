@@ -11,13 +11,16 @@ typedef struct llist_s {
  *
  * @param[out] list
  */
-llist_t* create_llist();
+llist_t* llist_create();
 
 /**
  * Frees a linked list from memory.
+ * Assumes the list's value does not need to be freed recursively. If a list is
+ * used with a value that does, this function needs to be reimplemented for the
+ * value's data type (see gphllist_delete).
  *
  * @param[in] list
  */
-void delete_llist(llist_t* list);
+void llist_delete(llist_t* list);
 
 #endif // GRAPH_COLOUR_LLIST_H
