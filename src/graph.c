@@ -50,7 +50,7 @@ void gphllist_delete(llist_t* list) {
     free(list);
 }
 
-// File operations
+// File interaction
 
 llist_t* gphs_read(FILE* input_file, int max_name_len) {
     llist_t* graphs = llist_create();
@@ -165,3 +165,37 @@ void gphs_write(FILE* output_file, llist_t* graphs) {
     free(vertices);
     gphs_write(output_file, graphs->next);
 }
+
+// Processing
+
+// TODO: Implement this (should loop over every neighbour, finding the minimum
+// unused colour).
+int gph_colour_custom_rec(llist_t* neighbours, int colour);
+
+graph_t* gph_colour_custom(graph_t* graph) {
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->vertex_count);
+    vertices = vtx_sort_neighbours_len(vertices, graph->vertex_count);
+
+    for (int i = 0; i < graph->vertex_count; i++) {
+        int colour = gph_colour_custom_rec(vertices[i]->neighbours, 1);
+        vertices[i]->colour = colour;
+    }
+    return graph;
+}
+
+graph_t* gph_colour(graph_t* graph, algorithm_t algorithm) {
+    switch (algorithm) {
+        case CUSTOM:
+            return gph_colour_custom(graph);
+    }
+}
+
+// TODO: function that flattens the colours of a graph to the smallest values
+// possible.
+//
+// Example: a graph has colours [1, 2, 6, 75, 147]. This function should make
+// the graph have the colours [1, 2, 3, 4, 5] instead, and change the colours
+// in each vertex accordingly.
+//
+// Before: {[A:1,B:2,C:6,D:75,E:147,F:6]}
+// After:  {[A:1,B:2,C:3,D:4,E:5,F:3]}

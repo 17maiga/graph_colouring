@@ -92,13 +92,27 @@ void vtxbstree_delete(bstree_t* tree);
  * Traverses the tree from left to right, returning an array of pointers to its
  * vertices.
  *
+ * @warning This function allocates a new array to memory.
+ *
  * @param[in] tree
  * @param[in] vertex_count The number of vertices in the tree.
  * @param[out] vertices An array of pointers to the tree's vertices.
  */
 vertex_t** vtxbstree_infix(bstree_t* tree, int vertex_count);
 
-// Miscelaneous
+// File interaction
+
+/**
+ * Prints a vertex's greater edges to a file.
+ * A greater edge is any edge that goes to a vertex whose name is greater than
+ * the starting node's name.
+ *
+ * @param[in] output_file
+ * @param[in] vertex
+ */
+void vtx_print_edges(FILE* output_file, vertex_t* vertex);
+
+// Processing
 
 /**
  * Adds each vertex to the other vertex's neighbours.
@@ -110,13 +124,13 @@ vertex_t** vtxbstree_infix(bstree_t* tree, int vertex_count);
 void vtx_create_edge(vertex_t* start, vertex_t* end);
 
 /**
- * Prints a vertex's greater edges to a file.
- * A greater edge is any edge that goes to a vertex whose name is greater than
- * the starting node's name.
+ * Sorts an array of vertices according to their neighbour count, in descending
+ * order.
  *
- * @param[in] output_file
- * @param[in] vertex
+ * @param[in] vertices
+ * @param[in] vertex_count The number of vertices in the array.
+ * @param[out] sorted_vertices
  */
-void vtx_print_edges(FILE* output_file, vertex_t* vertex);
+vertex_t** vtx_sort_neighbours_len(vertex_t** vertices, int vertex_count);
 
 #endif // GRAPH_COLOUR_VERTEX_H

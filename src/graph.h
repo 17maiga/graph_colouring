@@ -55,7 +55,7 @@ graph_t* gphllist_get(llist_t* list, int index);
  */
 void gphllist_delete(llist_t* list);
 
-// File operations
+// File interaction
 
 typedef enum {
     IDLE,
@@ -88,11 +88,17 @@ void gphs_write(FILE* output_file, llist_t* graph);
 
 // Processing
 
+typedef enum {
+    CUSTOM,
+} algorithm_t;
+
 /**
  * Colours a graph according to a specific algorithm.
  *
  * @param[in] graph
+ * @param[in] algorithm
+ * @param[out] updated_graph
  */
-void gph_colour(graph_t* graph);
+graph_t* gph_colour(graph_t* graph, algorithm_t algorithm);
 
 #endif // GRAPH_COLOUR_GRAPH_H

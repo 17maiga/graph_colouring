@@ -114,16 +114,7 @@ vertex_t** vtxbstree_infix(bstree_t* tree, int vertex_count) {
     return res;
 }
 
-// Miscelaneous
-
-void vtx_create_edge(vertex_t* start, vertex_t* end) {
-    if (strcmp(start->name, end->name) == 0)
-        return;
-    start->neighbours = vtxllist_insert(start->neighbours, end);
-    start->neighbours_len++;
-    end->neighbours = vtxllist_insert(end->neighbours, start);
-    end->neighbours_len++;
-}
+// File interaction
 
 void vtx_print_edges_rec(FILE* output_file, char* name, llist_t* edge) {
     if (edge == NULL || edge->value == NULL) return;
@@ -134,4 +125,29 @@ void vtx_print_edges_rec(FILE* output_file, char* name, llist_t* edge) {
 
 void vtx_print_edges(FILE* output_file, vertex_t* vertex) {
     vtx_print_edges_rec(output_file, vertex->name, vertex->neighbours);
+}
+
+// Processing
+
+void vtx_create_edge(vertex_t* start, vertex_t* end) {
+    if (strcmp(start->name, end->name) == 0)
+        return;
+    start->neighbours = vtxllist_insert(start->neighbours, end);
+    start->neighbours_len++;
+    end->neighbours = vtxllist_insert(end->neighbours, start);
+    end->neighbours_len++;
+}
+
+int vtx_sort_neighbours_len_cmp_desc(const void* v1, const void* v2) {
+    vertex_t* vtx1 = (vertex_t*) v1;
+    vertex_t* vtx2 = (vertex_t*) v2;
+    if (vtx1->neighbours_len != vtx2->neighbours_len)
+        return vtx2->neighbours_len - vtx1->neighbours_len;
+    return strcmp(vtx1->name, vtx2->name);
+}
+
+vertex_t** vtx_sort_neighbours_len(vertex_t** vertices, int vertex_count) {
+    qsort(vertices, vertex_count, sizeof(vertex_t*),
+          vtx_sort_neighbours_len_cmp_desc);
+    return vertices;
 }
