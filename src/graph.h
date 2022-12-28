@@ -57,16 +57,17 @@ void gphllist_delete(llist_t* list);
 
 // File operations
 
-#define STATUS_IDLE               0
-#define STATUS_START              1
-#define STATUS_VERTEX_COUNT       2
-#define STATUS_VERTEX_READ_NAME   3
-#define STATUS_VERTEX_READ_COLOUR 4
-#define STATUS_VERTEX_DONE        5
-#define STATUS_EDGES_READ         6
-#define STATUS_EDGE_READ_START    7
-#define STATUS_EDGE_READ_END      8
-#define STATUS_EDGES_DONE         9
+typedef enum {
+    IDLE,
+    START,
+    VERTEX_READ_NAME,
+    VERTEX_READ_COLOUR,
+    VERTEX_DONE,
+    EDGES_READ,
+    EDGE_READ_START,
+    EDGE_READ_END,
+    EDGES_DONE
+} status_t;
 
 /**
  * Reads any number of graphs from an input file.
