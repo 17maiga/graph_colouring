@@ -23,14 +23,14 @@ int main(int argc, char** argv) {
     }
 
     FILE* input_file = fopen(argv[1], "r");
-    graph_t* graph = read_graph(fopen(argv[1], "r"), MAX_VERTEX_NAME_LEN);
+    llist_t* graphs = gphs_read(fopen(argv[1], "r"), MAX_VERTEX_NAME_LEN);
     fclose(input_file);
 
     char output_file_name[strlen(argv[1]) + 8];
     strcpy(output_file_name, argv[1]);
     strcpy(output_file_name + strlen(argv[1]), ".colored");
     FILE* output_file = fopen(output_file_name, "w");
-    write_graph(output_file, graph);
+    gphs_write(output_file, graphs);
     fclose(output_file);
 
     exit(EXIT_SUCCESS);

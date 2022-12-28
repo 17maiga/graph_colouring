@@ -12,13 +12,16 @@ typedef struct bstree_s {
  *
  * @param[out] tree;
  */
-bstree_t* create_tree();
+bstree_t* bstree_create();
 
 /**
- * Frees a tree from memory.
+ * Frees a binary search tree from memory.
+ * Assumes the tree's value does not need to be freed recursively. If a tree is
+ * used with a value that does, this function needs to be reimplemented for the
+ * value's specific data type (ex: vtxtree_delete).
  *
  * @param[in] tree
  */
-void delete_tree(bstree_t* tree);
+void bstree_delete(bstree_t* tree);
 
 #endif // GRAPH_COLOUR_VTXTREE_H

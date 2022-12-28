@@ -6,22 +6,55 @@
 
 // Structure
 
-graph_t* create_graph() {
+graph_t* gph_create() {
     graph_t* graph = malloc(sizeof(graph_t));
-    graph->vertices = create_tree();
+    graph->vertices = bstree_create();
     graph->vertex_count = 0;
     return graph;
 }
 
-void delete_graph(graph_t* graph) {
-    delete_tree(graph->vertices);
+void gph_delete(graph_t* graph) {
+    vtxbstree_delete(graph->vertices);
     free(graph);
+}
+
+// Linked list interaction
+
+llist_t* gphllist_insert(llist_t* list, graph_t* graph) {
+    if (list == NULL)
+        list = llist_create();
+    if (list->value == NULL)
+        list->value = graph;
+    else
+        list->next = gphllist_insert(list->next, graph);
+    return list;
+}
+
+graph_t* gphllist_get(llist_t* list, int index) {
+    if (list == NULL || list->value == NULL) {
+        printf("Error: gphllist_get: No graph at index: %d\n", index);
+        exit(EXIT_FAILURE);
+    }
+
+    if (index == 0)
+        return (graph_t*) list->value;
+
+    return gphllist_get(list->next, index-1);
+}
+
+void gphllist_delete(llist_t* list) {
+    if (list != NULL) {
+        gph_delete(list->value);
+        gphllist_delete(list->next);
+    }
+    free(list);
 }
 
 // File operations
 
-graph_t* read_graph(FILE* input_file, int max_name_len) {
-    graph_t* graph = create_graph();
+llist_t* gphs_read(FILE* input_file, int max_name_len) {
+    llist_t* graphs = llist_create();
+    graph_t* graph_buffer = NULL;
     int c, buflen = 0;
     char buffer[max_name_len];
     vertex_t* vertex_buffer = NULL;
@@ -30,8 +63,10 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
         if (c == '\n' || c == ' ' || c == '\t') continue;
         switch (status) {
             case STATUS_IDLE:
-                if (c == '{')
+                if (c == '{') {
+                    graph_buffer = gph_create();
                     status = STATUS_START;
+                }
                 break;
             case STATUS_START:
                 if (c == '[')
@@ -40,14 +75,14 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
             case STATUS_VERTEX_READ_NAME:
                 if (c == ',' || c == ']' || c == ':') {
                     // Initialise the vertex
-                    vertex_buffer = create_vertex();
+                    vertex_buffer = vtx_create();
                     vertex_buffer->name_len = buflen;
                     vertex_buffer->name = malloc(buflen * sizeof(char));
                     strncpy(vertex_buffer->name, buffer, buflen);
                     buflen = 0;
                     // Insert the vertex into the graph's vertex tree
-                    graph->vertices = vtxtree_insert(graph->vertices, vertex_buffer);
-                    graph->vertex_count++;
+                    graph_buffer->vertices = vtxbstree_insert(graph_buffer->vertices, vertex_buffer);
+                    graph_buffer->vertex_count++;
                     if (c == ':') status = STATUS_VERTEX_READ_COLOUR;
                     else vertex_buffer = NULL;
                     if (c == ']') status = STATUS_VERTEX_DONE;
@@ -81,7 +116,7 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
                     name[buflen] = '\0';
                     strncpy(name, buffer, buflen);
                     buflen = 0;
-                    vertex_buffer = vtxtree_get(graph->vertices, name);
+                    vertex_buffer = vtxbstree_get(graph_buffer->vertices, name);
                     status = STATUS_EDGE_READ_END;
                 } else buffer[buflen++] = c;
                 break;
@@ -91,13 +126,17 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
                     name[buflen] = '\0';
                     strncpy(name, buffer, buflen);
                     buflen = 0;
-                    vertex_t* vertex = vtxtree_get(graph->vertices, name);
-                    create_edge(vertex, vertex_buffer);
+                    vertex_t* vertex = vtxbstree_get(graph_buffer->vertices, name);
+                    vtx_create_edge(vertex, vertex_buffer);
                     status = STATUS_EDGES_READ;
                 } else buffer[buflen++] = c;
                 break;
             case STATUS_EDGES_DONE:
-                if (c == '}') status = STATUS_IDLE;
+                if (c == '}') {
+                    gphllist_insert(graphs, graph_buffer);
+                    graph_buffer = NULL;
+                    status = STATUS_IDLE;
+                }
                 break;
         }
     }
@@ -105,12 +144,15 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
         printf("Error: read_graph: Input file not complete.\n");
         exit(1);
     }
-    return graph;
+    return graphs;
 }
 
-void write_graph(FILE* output_file, graph_t* graph) {
+void gphs_write(FILE* output_file, llist_t* graphs) {
+    if (graphs == NULL || graphs->value == NULL)
+        return;
+    graph_t* graph = (graph_t*) graphs->value;
     fprintf(output_file, "{[");
-    vertex_t** vertices = vtxtree_infix(graph->vertices, graph->vertex_count);
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->vertex_count);
     for (int i = 0; i < graph->vertex_count-1; i++) {
         fprintf(output_file, "%s:%d,", vertices[i]->name, vertices[i]->colour);
     }
@@ -121,4 +163,5 @@ void write_graph(FILE* output_file, graph_t* graph) {
     }
     fprintf(output_file, "]}\n");
     free(vertices);
+    gphs_write(output_file, graphs->next);
 }
