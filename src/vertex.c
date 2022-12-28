@@ -107,7 +107,7 @@ void create_edge(vertex_t* start, vertex_t* end) {
 }
 
 void vtx_print_edges_rec(FILE* output_file, char* name, llist_t* edge) {
-    if (edge == NULL) return;
+    if (edge == NULL || edge->value == NULL) return;
     if (strcmp(name, ((vertex_t*) edge->value)->name) < 0)
         fprintf(output_file, "(%s,%s)", name, ((vertex_t*) edge->value)->name);
     vtx_print_edges_rec(output_file, name, edge->next);

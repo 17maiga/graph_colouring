@@ -29,15 +29,16 @@ void delete_graph(graph_t* graph);
 
 // File operations
 
-#define STATUS_START              0
-#define STATUS_VERTEX_COUNT       1
-#define STATUS_VERTEX_READ_NAME   2
-#define STATUS_VERTEX_READ_COLOUR 3
-#define STATUS_VERTEX_DONE        4
-#define STATUS_EDGES_READ         5
-#define STATUS_EDGE_READ_START    6
-#define STATUS_EDGE_READ_END      7
-#define STATUS_DONE               8
+#define STATUS_IDLE               0
+#define STATUS_START              1
+#define STATUS_VERTEX_COUNT       2
+#define STATUS_VERTEX_READ_NAME   3
+#define STATUS_VERTEX_READ_COLOUR 4
+#define STATUS_VERTEX_DONE        5
+#define STATUS_EDGES_READ         6
+#define STATUS_EDGE_READ_START    7
+#define STATUS_EDGE_READ_END      8
+#define STATUS_EDGES_DONE         9
 
 /**
  * Reads a graph from an input file.

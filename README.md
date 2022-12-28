@@ -11,23 +11,46 @@ color_graph <filename>
 
 `<filename>` represents the path to the input file. This input file should be
 formatted according to the following convention:
-- The first line should start with `[` and end with `]`. Between these, any
-  number of vertices may be declared, with no duplicates, simply by writing
-  their names and separating them by commas. Optionally, colours may be added
-  to specific vertices, simply by appending a colour number to the end of the
-  name, separated by a `:`. Names can be composed of letters, numbers, and
-  punctuation characters except the following: `[`, `]`, `,`, `:`. Spaces and 
-  tab characters will be systematically skipped.
-- The second line should start with `[` and end with `]`. Between these, any
-  number of edges may be declared, again with no duplicates, using the 
-  following syntax: `(start_name,end_name)`.
+- Graphs should be surrounded by curly braces (`{}`). Graphs should contain at
+  least a list of vertex names, separated by commas. This list should be
+  surrounded by square braces (`[]`).
+- Names can be composed of any letter, number or punctuation sign in the ASCII
+  table except the following: `{`, `}`, `[`, `]`, `,`, `:`. Whitespace 
+  characters (spaces, newlines, tabs) will be ignored no matter where they 
+  occur. Duplicates will be ignored.
+- Graphs may also contain a list of edges. An edge is composed of the starting
+  vertex's and the ending vertex's names, separated by a comma, and the whole
+  surrounded by brackets (`()`); If the graph does not contain any edges, this
+  list may be ommitted.
+- The input file may contain any number of graphs.
 
 Here is an example of a graph definition:
 
 ``` text
-[A:5,B,C]
-[(A,B)(A,C)(B,C)]
+{[A:5,B,C][(A,B)(A,C)(B,C)]}
 ```
 
-The program will create a file in the same directory as the input file, with the
-same name as the input file, with the `.colored` suffix appended.
+The following graph definition is equivalent:
+
+``` text
+{
+  [ A:5, B, C ]
+  [ 
+    (A, B)
+    (A, C)
+    (B, C)
+  ]
+}
+```
+
+If no output options are specified, the program will create a file in the same 
+directory as the input file, with the same name as the input file, with the 
+`.colored` suffix appended.
+
+If the `-o` option is specified, the program will use `FILENAME` as the output
+file, if possible. It will not create any required directories.
+
+If the `-s` option is specified, the program will create a separate file for
+each graph in the input file. These will be numbered from 1 to `n`, with `n` the
+number of graphs in the input file, and this number will be appended to the end
+of the output file's name.

@@ -3,7 +3,7 @@ CC := gcc
 SRC_DIR := src
 BUILD_DIR := build
 BIN_DIR := bin
-TARGET := bin/main
+TARGET := bin/graph_colour
 SRC_EXT := c
 SOURCES := $(shell find $(SRC_DIR) -type f -name *.$(SRC_EXT))
 OBJECTS := $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(SOURCES:.$(SRC_EXT)=.o))

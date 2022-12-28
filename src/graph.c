@@ -25,9 +25,14 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
     int c, buflen = 0;
     char buffer[max_name_len];
     vertex_t* vertex_buffer = NULL;
-    int status = STATUS_START;
-    while ((c = fgetc(input_file)) != EOF && status != STATUS_DONE) {
+    int status = STATUS_IDLE;
+    while ((c = fgetc(input_file)) != EOF) {
+        if (c == '\n' || c == ' ' || c == '\t') continue;
         switch (status) {
+            case STATUS_IDLE:
+                if (c == '{')
+                    status = STATUS_START;
+                break;
             case STATUS_START:
                 if (c == '[')
                     status = STATUS_VERTEX_READ_NAME;
@@ -63,20 +68,12 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
                 } else buffer[buflen++] = c;
                 break;
             case STATUS_VERTEX_DONE:
-                // Skip to the end of the line
-                while (c != '\n' && c != EOF) c = fgetc(input_file);
-                if (c == EOF) {
-                    status = STATUS_DONE;
-                    break;
-                }
-                // Find the next '[' character
-                while (c != '[' && c != EOF) c = fgetc(input_file);
-                if (c == EOF) status = STATUS_DONE;
-                else status = STATUS_EDGES_READ;
+                if (c == '[') status = STATUS_EDGES_READ;
+                else if (c == '}') status = STATUS_IDLE;
                 break;
             case STATUS_EDGES_READ:
                 if (c == '(') status = STATUS_EDGE_READ_START;
-                else if (c == ']') status = STATUS_DONE;
+                else if (c == ']') status = STATUS_EDGES_DONE;
                 break;
             case STATUS_EDGE_READ_START:
                 if (c == ',') {
@@ -99,9 +96,12 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
                     status = STATUS_EDGES_READ;
                 } else buffer[buflen++] = c;
                 break;
+            case STATUS_EDGES_DONE:
+                if (c == '}') status = STATUS_IDLE;
+                break;
         }
     }
-    if (status != STATUS_DONE) {
+    if (status != STATUS_IDLE) {
         printf("Error: read_graph: Input file not complete.\n");
         exit(1);
     }
@@ -109,16 +109,16 @@ graph_t* read_graph(FILE* input_file, int max_name_len) {
 }
 
 void write_graph(FILE* output_file, graph_t* graph) {
-    fprintf(output_file, "[");
+    fprintf(output_file, "{[");
     vertex_t** vertices = vtxtree_infix(graph->vertices, graph->vertex_count);
     for (int i = 0; i < graph->vertex_count-1; i++) {
         fprintf(output_file, "%s:%d,", vertices[i]->name, vertices[i]->colour);
     }
-    fprintf(output_file, "%s:%d]\n[", vertices[graph->vertex_count-1]->name,
+    fprintf(output_file, "%s:%d][", vertices[graph->vertex_count-1]->name,
             vertices[graph->vertex_count-1]->colour);
     for (int i = 0; i < graph->vertex_count; i++) {
         vtx_print_edges(output_file, vertices[i]);
     }
-    fprintf(output_file, "]\n");
+    fprintf(output_file, "]}\n");
     free(vertices);
 }
