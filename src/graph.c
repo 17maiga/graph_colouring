@@ -58,21 +58,21 @@ llist_t* gphs_read(FILE* input_file, int max_name_len) {
     int c, buflen = 0;
     char buffer[max_name_len];
     vertex_t* vertex_buffer = NULL;
-    int status = STATUS_IDLE;
+    status_t status = IDLE;
     while ((c = fgetc(input_file)) != EOF) {
         if (c == '\n' || c == ' ' || c == '\t') continue;
         switch (status) {
-            case STATUS_IDLE:
+            case IDLE:
                 if (c == '{') {
                     graph_buffer = gph_create();
-                    status = STATUS_START;
+                    status = START;
                 }
                 break;
-            case STATUS_START:
+            case START:
                 if (c == '[')
-                    status = STATUS_VERTEX_READ_NAME;
+                    status = VERTEX_READ_NAME;
                 break;
-            case STATUS_VERTEX_READ_NAME:
+            case VERTEX_READ_NAME:
                 if (c == ',' || c == ']' || c == ':') {
                     // Initialise the vertex
                     vertex_buffer = vtx_create();
@@ -83,12 +83,12 @@ llist_t* gphs_read(FILE* input_file, int max_name_len) {
                     // Insert the vertex into the graph's vertex tree
                     graph_buffer->vertices = vtxbstree_insert(graph_buffer->vertices, vertex_buffer);
                     graph_buffer->vertex_count++;
-                    if (c == ':') status = STATUS_VERTEX_READ_COLOUR;
+                    if (c == ':') status = VERTEX_READ_COLOUR;
                     else vertex_buffer = NULL;
-                    if (c == ']') status = STATUS_VERTEX_DONE;
+                    if (c == ']') status = VERTEX_DONE;
                 } else buffer[buflen++] = c;
                 break;
-            case STATUS_VERTEX_READ_COLOUR:
+            case VERTEX_READ_COLOUR:
                 if (c == ',' || c == ']') {
                     char colourchars[buflen + 1];
                     colourchars[buflen] = '\0';
@@ -98,29 +98,29 @@ llist_t* gphs_read(FILE* input_file, int max_name_len) {
                     sscanf(colourchars, "%d", &colour);
                     vertex_buffer->colour = colour;
                     vertex_buffer = NULL;
-                    if (c == ',') status = STATUS_VERTEX_READ_NAME;
-                    else status = STATUS_VERTEX_DONE;
+                    if (c == ',') status = VERTEX_READ_NAME;
+                    else status = VERTEX_DONE;
                 } else buffer[buflen++] = c;
                 break;
-            case STATUS_VERTEX_DONE:
-                if (c == '[') status = STATUS_EDGES_READ;
-                else if (c == '}') status = STATUS_IDLE;
+            case VERTEX_DONE:
+                if (c == '[') status = EDGES_READ;
+                else if (c == '}') status = IDLE;
                 break;
-            case STATUS_EDGES_READ:
-                if (c == '(') status = STATUS_EDGE_READ_START;
-                else if (c == ']') status = STATUS_EDGES_DONE;
+            case EDGES_READ:
+                if (c == '(') status = EDGE_READ_START;
+                else if (c == ']') status = EDGES_DONE;
                 break;
-            case STATUS_EDGE_READ_START:
+            case EDGE_READ_START:
                 if (c == ',') {
                     char name[buflen+1];
                     name[buflen] = '\0';
                     strncpy(name, buffer, buflen);
                     buflen = 0;
                     vertex_buffer = vtxbstree_get(graph_buffer->vertices, name);
-                    status = STATUS_EDGE_READ_END;
+                    status = EDGE_READ_END;
                 } else buffer[buflen++] = c;
                 break;
-            case STATUS_EDGE_READ_END:
+            case EDGE_READ_END:
                 if (c == ')') {
                     char name[buflen+1];
                     name[buflen] = '\0';
@@ -128,19 +128,19 @@ llist_t* gphs_read(FILE* input_file, int max_name_len) {
                     buflen = 0;
                     vertex_t* vertex = vtxbstree_get(graph_buffer->vertices, name);
                     vtx_create_edge(vertex, vertex_buffer);
-                    status = STATUS_EDGES_READ;
+                    status = EDGES_READ;
                 } else buffer[buflen++] = c;
                 break;
-            case STATUS_EDGES_DONE:
+            case EDGES_DONE:
                 if (c == '}') {
                     gphllist_insert(graphs, graph_buffer);
                     graph_buffer = NULL;
-                    status = STATUS_IDLE;
+                    status = IDLE;
                 }
                 break;
         }
     }
-    if (status != STATUS_IDLE) {
+    if (status != IDLE) {
         printf("Error: read_graph: Input file not complete.\n");
         exit(1);
     }
