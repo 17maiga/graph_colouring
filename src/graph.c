@@ -56,7 +56,7 @@ void gphllist_delete(llist_t* list) {
 
 // File interaction
 
-llist_t* gphs_read(FILE* input_file, int max_name_len) {
+llist_t* gphs_read(FILE* input_file, size_t max_name_len) {
     llist_t* graphs = llist_create();
     graph_t* graph_buffer = NULL;
     int c, buflen = 0;
@@ -157,12 +157,12 @@ void gphs_write(FILE* output_file, llist_t* graphs) {
     graph_t* graph = (graph_t*) graphs->value;
     fprintf(output_file, "{[");
     vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->vertex_count);
-    for (int i = 0; i < graph->vertex_count-1; i++) {
+    for (size_t i = 0; i < graph->vertex_count-1; i++) {
         fprintf(output_file, "%s:%d,", vertices[i]->name, vertices[i]->colour);
     }
     fprintf(output_file, "%s:%d][", vertices[graph->vertex_count-1]->name,
             vertices[graph->vertex_count-1]->colour);
-    for (int i = 0; i < graph->vertex_count; i++) {
+    for (size_t i = 0; i < graph->vertex_count; i++) {
         vtx_print_edges(output_file, vertices[i]);
     }
     fprintf(output_file, "]}\n");
@@ -172,18 +172,72 @@ void gphs_write(FILE* output_file, llist_t* graphs) {
 
 // Processing
 
+// Personal Algorithm
+// Steps:
+// 1. Find the valence for each vertex.
+// 2. List the vertices in order of descending valence.
+// 3. Go down the list, colouring each vertex with the lowest possible colour
+//    not used by any of the vertex's neighbours.
+// Warnings:
+// - Will minimize graph colours.
+// - Dependent on existing colours.
 void gph_colour_custom(graph_t* graph) {
+    gph_reduce_colours(graph);
+
     vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->vertex_count);
     vtx_sort_valence_desc(vertices, graph->vertex_count);
 
-    for (int i = 0; i < graph->vertex_count; i++)
+    for (size_t i = 0; i < graph->vertex_count; i++)
         vertices[i]->colour = vtx_get_smallest_colour(vertices[i]);
 
     free(vertices);
 }
 
+// Welsh-Powell Algorithm
+// Steps:
+// 1. Find the valence for each vertex.
+// 2. List the vertices in order of descending valence
+// 3. Colour the first vertex in the list with colour 1.
+// 4. Go down the list and colour every vertex not connected to the coloured
+//    vertices above the same colour. Then cross out all coloured vertices in
+//    the list.
+// 5. Repeat the process on the uncoloured vertices with a new colour - always
+//    working in descending order of valence until all the vertices have been
+//    coloured.
+// Warnings:
+// - Will minimize graph colours.
+// - Dependent on existing colours.
 void gph_colour_welsh_powell(graph_t* graph) {
-    return;
+    gph_reduce_colours(graph);
+
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->vertex_count);
+    vtx_sort_valence_desc(vertices, graph->vertex_count);
+
+    colour_t current_colour = 1;
+    for (size_t i = 0; i < graph->vertex_count; i++)
+        if (vertices[i]->colour >= current_colour)
+            current_colour = vertices[i]->colour + 1;
+
+    size_t remaining_vertices;
+    vertex_t** uncoloured = vtx_filter_coloured(vertices, graph->vertex_count,
+                                                &remaining_vertices);
+
+    while (remaining_vertices > 0) {
+        uncoloured[0]->colour = current_colour;
+
+        for (size_t i = 0; i < remaining_vertices; i++)
+            if (vtx_has_neighbouring_colour(uncoloured[i], current_colour) == 0)
+                uncoloured[i]->colour = current_colour;
+
+        vertex_t** tmp = vtx_filter_coloured(uncoloured, remaining_vertices,
+                                             &remaining_vertices);
+        free(uncoloured);
+        uncoloured = tmp;
+        current_colour++;
+    }
+
+    free(uncoloured);
+    free(vertices);
 }
 
 void gph_colour_dsatur(graph_t* graph) {
@@ -226,7 +280,7 @@ void gph_reduce_colours(graph_t* graph) {
     vtx_sort_colour_asc(vertices, graph->vertex_count);
     int prev_colour = 0, set_colour = 0;
 
-    for (int i = 0; i < graph->vertex_count; i++) {
+    for (size_t i = 0; i < graph->vertex_count; i++) {
         if (vertices[i]->colour == 0)
             continue;
         if (vertices[i]->colour != prev_colour) {

@@ -1,9 +1,6 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "bstree.h"
-#include "vertex.h"
 
 bstree_t* bstree_create() {
     bstree_t* res = malloc(sizeof(bstree_t));
