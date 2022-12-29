@@ -189,4 +189,33 @@ int vtx_has_neighbouring_colour(vertex_t* vertex, colour_t colour);
 vertex_t** vtx_filter_coloured(vertex_t** vertices, size_t vertex_count,
                                size_t* filtered_count);
 
+/**
+ * Returns the degree of saturation of a vertex.
+ * The degree of saturation is the number of different colours used in a
+ * vertex's adjacent vertices.
+ *
+ * @param[in]  vertex
+ * @param[out] dsatur
+ */
+int vtx_get_dsatur(vertex_t* vertex);
+
+/**
+ * Returns the number of uncoloured vertices in a vertex's neighbours.
+ *
+ * @param[in]  vertex
+ * @param[out] order
+ */
+int vtx_get_uncoloured_order(vertex_t* vertex);
+
+/**
+ * Returns the vertex with the highest degree of saturation in an array.
+ * The degree of saturation is the number of different colours used in a
+ * vertex's adjacent vertices.
+ *
+ * @param[in]  vertices
+ * @param[in]  vertex_count
+ * @param[out] vertex
+ */
+vertex_t* vtx_get_highest_dsatur(vertex_t** vertices, size_t vertex_count);
+
 #endif // GRAPH_COLOUR_VERTEX_H

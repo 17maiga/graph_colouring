@@ -97,6 +97,14 @@ typedef enum {
 } algorithm_t;
 
 /**
+ * Checks if a graph still has uncoloured vertices.
+ *
+ * @param[in]  graph
+ * @param[out] 1 if it does, 0 otherwise.
+ */
+int gph_has_uncoloured_vertices(graph_t* graph);
+
+/**
  * Colours a graph according to a specific algorithm.
  *
  * @param[in]  graph

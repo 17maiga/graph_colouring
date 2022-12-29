@@ -225,17 +225,63 @@ vertex_t** vtx_filter_coloured(vertex_t** vertices, size_t vertex_count,
     for (size_t i = 0; i < vertex_count; i++)
         if (vertices[i]->colour == 0)
             (*filtered_count)++;
-
     vertex_t** filtered = malloc(*filtered_count * sizeof(vertex_t*));
     if (filtered == NULL) {
         perror("Error: vtx_filter_coloured");
         exit(EXIT_FAILURE);
     }
-
     int j = 0;
     for (size_t i = 0; i < vertex_count; i++)
         if (vertices[i]->colour == 0)
             filtered[j++] = vertices[i];
-
     return filtered;
+}
+
+int vtx_get_dsatur(vertex_t* vertex) {
+    llist_t* buffer = vertex->neighbours;
+    int* neighbouring_colours = malloc(vertex->order * sizeof(int));
+    int dsatur = 0;
+    while (buffer != NULL && buffer->value != NULL) {
+        int is_new_colour = 1;
+        for (int i = 0; i < dsatur; i++)
+            if (((vertex_t*) buffer->value)->colour == neighbouring_colours[i]
+                && ((vertex_t*) buffer->value)->colour != 0)
+                is_new_colour = 0;
+        if (is_new_colour == 1)
+            neighbouring_colours[++dsatur] =
+                ((vertex_t*) buffer->value)->colour;
+        buffer = buffer->next;
+    }
+    free(neighbouring_colours);
+    return dsatur;
+}
+
+int vtx_get_uncoloured_order(vertex_t* vertex) {
+    llist_t* buffer = vertex->neighbours;
+    int order = 0;
+    while (buffer != NULL && buffer->value != NULL) {
+        if (((vertex_t*) buffer->value)->colour == 0)
+            order++;
+        buffer = buffer->next;
+    }
+    return order;
+}
+
+vertex_t* vtx_get_highest_dsatur(vertex_t** vertices, size_t vertex_count) {
+    vertex_t* vertex = NULL;
+    int highest_dsatur = 0;
+    for (size_t i = 0; i < vertex_count; i++) {
+        int dsatur = vtx_get_dsatur(vertices[i]);
+        if ((dsatur > highest_dsatur) ||
+            (dsatur == highest_dsatur &&
+             ((vtx_get_uncoloured_order(vertices[i]) >
+               vtx_get_uncoloured_order(vertex)) ||
+              (vtx_get_uncoloured_order(vertices[i]) ==
+               vtx_get_uncoloured_order(vertex) &&
+               strcmp(vertices[i]->name, vertex->name) < 0)))) {
+            vertex = vertices[i];
+            highest_dsatur = dsatur;
+        }
+    }
+    return vertex;
 }

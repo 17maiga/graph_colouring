@@ -172,6 +172,15 @@ void gphs_write(FILE* output_file, llist_t* graphs) {
 
 // Processing
 
+int gph_has_uncoloured_vertices(graph_t* graph) {
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
+    for (size_t i = 0; i < graph->order; i++)
+        if (vertices[i]->colour == 0)
+            return 1;
+    free(vertices);
+    return 0;
+}
+
 // Personal Algorithm
 // Steps:
 // 1. Find the order for each vertex.
@@ -212,22 +221,30 @@ void gph_colour_welsh_powell(graph_t* graph) {
     vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
     vtx_sort_order_desc(vertices, graph->order);
 
+    // Get smallest colour not already used in graph.
     colour_t current_colour = 1;
     for (size_t i = 0; i < graph->order; i++)
         if (vertices[i]->colour >= current_colour)
             current_colour = vertices[i]->colour + 1;
 
+    // Get uncoloured vertices.
     size_t remaining_vertices;
-    vertex_t** uncoloured = vtx_filter_coloured(vertices, graph->order,
-                                                &remaining_vertices);
+    vertex_t** uncoloured =
+        vtx_filter_coloured(vertices, graph->order, &remaining_vertices);
+    free(vertices);
 
     while (remaining_vertices > 0) {
+        // Assign the current colour to the uncoloured vertex with the greatest
+        // order.
         uncoloured[0]->colour = current_colour;
 
+        // Assign the current colour to all uncoloured vertices not already
+        // adjacent to this colour, working in descending order of order.
         for (size_t i = 0; i < remaining_vertices; i++)
             if (vtx_has_neighbouring_colour(uncoloured[i], current_colour) == 0)
                 uncoloured[i]->colour = current_colour;
 
+        // Update the uncoloured vertices.
         vertex_t** tmp = vtx_filter_coloured(uncoloured, remaining_vertices,
                                              &remaining_vertices);
         free(uncoloured);
@@ -236,12 +253,45 @@ void gph_colour_welsh_powell(graph_t* graph) {
     }
 
     free(uncoloured);
-    free(vertices);
 }
 
 // DSatur Algorithm
+// Steps:
+// 1. Find the uncoloured vertex with the highest degree of saturation. In case
+//    of ties, choose the vertex among these with the largest degree in the
+//    subgraph induced by the uncoloured vertices.
+// 2. Assign the lowest colour not being used by any of this vertex's
+//    neighbours to this vertex.
+// 3. If all vertices have been coloured, end. Otherwise, return to step 1.
+// Warnings:
+// - Will minimize graph colours.
+// - Dependent on existing colours.
 void gph_colour_dsatur(graph_t* graph) {
-    return;
+    gph_reduce_colours(graph);
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
+
+    // Get uncoloured vertices;
+    size_t remaining_vertices;
+    vertex_t** uncoloured = vtx_filter_coloured(vertices, graph->order,
+                                                &remaining_vertices);
+    free(vertices);
+
+    while (remaining_vertices > 0) {
+        // Get the uncoloured vertex with the highest degree of saturation.
+        vertex_t* vertex = vtx_get_highest_dsatur(uncoloured,
+                                                  remaining_vertices);
+
+        // Assign the smallest available colour possible to this vertex.
+        vertex->colour = vtx_get_smallest_colour(vertex);
+
+        // Update uncoloured vertices.
+        vertex_t** tmp = vtx_filter_coloured(uncoloured, remaining_vertices,
+                                             &remaining_vertices);
+        free(uncoloured);
+        uncoloured = tmp;
+    }
+
+    free(uncoloured);
 }
 
 void gph_colour_rlf(graph_t* graph) {
