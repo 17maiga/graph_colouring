@@ -15,7 +15,7 @@ typedef struct vertex_s {
     size_t name_len;
     colour_t colour;
     llist_t* neighbours;
-    size_t valence; // Number of neigbours
+    size_t order; // Number of neigbours
 } vertex_t;
 
 // Linked list interaction
@@ -145,7 +145,7 @@ void vtx_create_edge(vertex_t* start, vertex_t* end);
  * @param[in] vertices
  * @param[in] vertex_count  The number of vertices in the array.
  */
-void vtx_sort_valence_desc(vertex_t** vertices, size_t vertex_count);
+void vtx_sort_order_desc(vertex_t** vertices, size_t vertex_count);
 
 /**
  * Sorts an array of vertices in place according to their colour, in ascending

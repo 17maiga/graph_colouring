@@ -9,7 +9,7 @@
 graph_t* gph_create() {
     graph_t* graph = malloc(sizeof(graph_t));
     graph->vertices = bstree_create();
-    graph->vertex_count = 0;
+    graph->order = 0;
     return graph;
 }
 
@@ -86,7 +86,7 @@ llist_t* gphs_read(FILE* input_file, size_t max_name_len) {
                     buflen = 0;
                     // Insert the vertex into the graph's vertex tree
                     vtxbstree_insert(graph_buffer->vertices, vertex_buffer);
-                    graph_buffer->vertex_count++;
+                    graph_buffer->order++;
                     if (c == ':') status = VERTEX_READ_COLOUR;
                     else vertex_buffer = NULL;
                     if (c == ']') status = VERTEX_DONE;
@@ -156,13 +156,13 @@ void gphs_write(FILE* output_file, llist_t* graphs) {
         return;
     graph_t* graph = (graph_t*) graphs->value;
     fprintf(output_file, "{[");
-    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->vertex_count);
-    for (size_t i = 0; i < graph->vertex_count-1; i++) {
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
+    for (size_t i = 0; i < graph->order-1; i++) {
         fprintf(output_file, "%s:%d,", vertices[i]->name, vertices[i]->colour);
     }
-    fprintf(output_file, "%s:%d][", vertices[graph->vertex_count-1]->name,
-            vertices[graph->vertex_count-1]->colour);
-    for (size_t i = 0; i < graph->vertex_count; i++) {
+    fprintf(output_file, "%s:%d][", vertices[graph->order-1]->name,
+            vertices[graph->order-1]->colour);
+    for (size_t i = 0; i < graph->order; i++) {
         vtx_print_edges(output_file, vertices[i]);
     }
     fprintf(output_file, "]}\n");
@@ -174,8 +174,8 @@ void gphs_write(FILE* output_file, llist_t* graphs) {
 
 // Personal Algorithm
 // Steps:
-// 1. Find the valence for each vertex.
-// 2. List the vertices in order of descending valence.
+// 1. Find the order for each vertex.
+// 2. List the vertices in order of descending order.
 // 3. Go down the list, colouring each vertex with the lowest possible colour
 //    not used by any of the vertex's neighbours.
 // Warnings:
@@ -184,10 +184,10 @@ void gphs_write(FILE* output_file, llist_t* graphs) {
 void gph_colour_custom(graph_t* graph) {
     gph_reduce_colours(graph);
 
-    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->vertex_count);
-    vtx_sort_valence_desc(vertices, graph->vertex_count);
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
+    vtx_sort_order_desc(vertices, graph->order);
 
-    for (size_t i = 0; i < graph->vertex_count; i++)
+    for (size_t i = 0; i < graph->order; i++)
         vertices[i]->colour = vtx_get_smallest_colour(vertices[i]);
 
     free(vertices);
@@ -195,31 +195,30 @@ void gph_colour_custom(graph_t* graph) {
 
 // Welsh-Powell Algorithm
 // Steps:
-// 1. Find the valence for each vertex.
-// 2. List the vertices in order of descending valence
+// 1. Find the order of each vertex.
+// 2. List the vertices in order of descending order.
 // 3. Colour the first vertex in the list with colour 1.
 // 4. Go down the list and colour every vertex not connected to the coloured
 //    vertices above the same colour. Then cross out all coloured vertices in
 //    the list.
 // 5. Repeat the process on the uncoloured vertices with a new colour - always
-//    working in descending order of valence until all the vertices have been
+//    working in descending order of order until all the vertices have been
 //    coloured.
 // Warnings:
 // - Will minimize graph colours.
 // - Dependent on existing colours.
 void gph_colour_welsh_powell(graph_t* graph) {
     gph_reduce_colours(graph);
-
-    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->vertex_count);
-    vtx_sort_valence_desc(vertices, graph->vertex_count);
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
+    vtx_sort_order_desc(vertices, graph->order);
 
     colour_t current_colour = 1;
-    for (size_t i = 0; i < graph->vertex_count; i++)
+    for (size_t i = 0; i < graph->order; i++)
         if (vertices[i]->colour >= current_colour)
             current_colour = vertices[i]->colour + 1;
 
     size_t remaining_vertices;
-    vertex_t** uncoloured = vtx_filter_coloured(vertices, graph->vertex_count,
+    vertex_t** uncoloured = vtx_filter_coloured(vertices, graph->order,
                                                 &remaining_vertices);
 
     while (remaining_vertices > 0) {
@@ -240,6 +239,7 @@ void gph_colour_welsh_powell(graph_t* graph) {
     free(vertices);
 }
 
+// DSatur Algorithm
 void gph_colour_dsatur(graph_t* graph) {
     return;
 }
@@ -251,8 +251,6 @@ void gph_colour_rlf(graph_t* graph) {
 void gph_colour(graph_t* graph, algorithm_t algorithm) {
     switch (algorithm) {
         case CUSTOM:
-            // First algorithm found before research. Equivalent to
-            // Welsh-Powell algorithm.
             gph_colour_custom(graph);
             break;
         case WELSH_POWELL:
@@ -276,11 +274,11 @@ void gphs_colour(llist_t* graphs, algorithm_t algorithm) {
 }
 
 void gph_reduce_colours(graph_t* graph) {
-    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->vertex_count);
-    vtx_sort_colour_asc(vertices, graph->vertex_count);
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
+    vtx_sort_colour_asc(vertices, graph->order);
     int prev_colour = 0, set_colour = 0;
 
-    for (size_t i = 0; i < graph->vertex_count; i++) {
+    for (size_t i = 0; i < graph->order; i++) {
         if (vertices[i]->colour == 0)
             continue;
         if (vertices[i]->colour != prev_colour) {

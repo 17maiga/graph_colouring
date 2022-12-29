@@ -10,7 +10,7 @@
 
 typedef struct graph_s {
     bstree_t* vertices;
-    size_t vertex_count;
+    size_t order;
 } graph_t;
 
 // Memory
