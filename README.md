@@ -57,6 +57,6 @@ of the output file's name.
 
 ## Sources
 
-- [Welsh-Powell algorithm](http://mrsleblancsmath.pbworks.com/w/file/fetch/46119304/vertex%20coloring%20algorithm.pdf)
+- [Welsh-Powell](http://mrsleblancsmath.pbworks.com/w/file/fetch/46119304/vertex%20coloring%20algorithm.pdf)
 - [DSatur](https://en.wikipedia.com/wiki/DSatur)
-- [RLF Algorithm](https://en.wikipedia.com/wiki/Recursive_largest_first_algorithm)
+- [RLF](https://en.wikipedia.com/wiki/Recursive_largest_first_algorithm)
