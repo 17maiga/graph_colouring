@@ -4,7 +4,7 @@
 
 #include "graph.h"
 
-// Structure
+// Memory
 
 graph_t* gph_create() {
     graph_t* graph = malloc(sizeof(graph_t));
@@ -20,14 +20,18 @@ void gph_delete(graph_t* graph) {
 
 // Linked list interaction
 
-llist_t* gphllist_insert(llist_t* list, graph_t* graph) {
+llist_t* gphllist_insert_rec(llist_t* list, graph_t* graph) {
     if (list == NULL)
         list = llist_create();
     if (list->value == NULL)
         list->value = graph;
     else
-        list->next = gphllist_insert(list->next, graph);
+        list->next = gphllist_insert_rec(list->next, graph);
     return list;
+}
+
+void gphllist_insert(llist_t* list, graph_t* graph) {
+    list = gphllist_insert_rec(list, graph);
 }
 
 graph_t* gphllist_get(llist_t* list, int index) {
@@ -50,7 +54,7 @@ void gphllist_delete(llist_t* list) {
     free(list);
 }
 
-// File operations
+// File interaction
 
 llist_t* gphs_read(FILE* input_file, int max_name_len) {
     llist_t* graphs = llist_create();
@@ -81,7 +85,7 @@ llist_t* gphs_read(FILE* input_file, int max_name_len) {
                     strncpy(vertex_buffer->name, buffer, buflen);
                     buflen = 0;
                     // Insert the vertex into the graph's vertex tree
-                    graph_buffer->vertices = vtxbstree_insert(graph_buffer->vertices, vertex_buffer);
+                    vtxbstree_insert(graph_buffer->vertices, vertex_buffer);
                     graph_buffer->vertex_count++;
                     if (c == ':') status = VERTEX_READ_COLOUR;
                     else vertex_buffer = NULL;
@@ -164,4 +168,81 @@ void gphs_write(FILE* output_file, llist_t* graphs) {
     fprintf(output_file, "]}\n");
     free(vertices);
     gphs_write(output_file, graphs->next);
+}
+
+// Processing
+
+void gph_colour_custom(graph_t* graph) {
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->vertex_count);
+    vtx_sort_valence_desc(vertices, graph->vertex_count);
+
+    for (int i = 0; i < graph->vertex_count; i++)
+        vertices[i]->colour = vtx_get_smallest_colour(vertices[i]);
+
+    free(vertices);
+}
+
+void gph_colour_welsh_powell(graph_t* graph) {
+    return;
+}
+
+void gph_colour_dsatur(graph_t* graph) {
+    return;
+}
+
+void gph_colour_rlf(graph_t* graph) {
+    return;
+}
+
+void gph_colour(graph_t* graph, algorithm_t algorithm) {
+    switch (algorithm) {
+        case CUSTOM:
+            // First algorithm found before research. Equivalent to
+            // Welsh-Powell algorithm.
+            gph_colour_custom(graph);
+            break;
+        case WELSH_POWELL:
+            gph_colour_welsh_powell(graph);
+            break;
+        case DSATUR:
+            gph_colour_dsatur(graph);
+            break;
+        case RLF:
+            gph_colour_rlf(graph);
+            break;
+    }
+}
+
+void gphs_colour(llist_t* graphs, algorithm_t algorithm) {
+    llist_t* buffer = graphs;
+    while (buffer != NULL && buffer->value != NULL) {
+        gph_colour(buffer->value, algorithm);
+        buffer = buffer->next;
+    }
+}
+
+void gph_reduce_colours(graph_t* graph) {
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->vertex_count);
+    vtx_sort_colour_asc(vertices, graph->vertex_count);
+    int prev_colour = 0, set_colour = 0;
+
+    for (int i = 0; i < graph->vertex_count; i++) {
+        if (vertices[i]->colour == 0)
+            continue;
+        if (vertices[i]->colour != prev_colour) {
+            prev_colour = vertices[i]->colour;
+            set_colour++;
+        }
+        vertices[i]->colour = set_colour;
+    }
+
+    free(vertices);
+}
+
+void gphs_reduce_colours(llist_t* graphs) {
+    llist_t* buffer = graphs;
+    while (buffer != NULL && buffer->value != NULL) {
+        gph_reduce_colours(buffer->value);
+        buffer = buffer->next;
+    }
 }

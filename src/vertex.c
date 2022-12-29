@@ -6,14 +6,18 @@
 
 // Linked list interaction
 
-llist_t* vtxllist_insert(llist_t* list, vertex_t* vertex) {
+llist_t* vtxllist_insert_rec(llist_t* list, vertex_t* vertex) {
     if (list == NULL)
         list = llist_create();
     if (list->value == NULL)
         list->value = vertex;
     else if (strcmp(vertex->name, ((vertex_t*) list->value)->name) != 0)
-        list->next = vtxllist_insert(list->next, vertex);
+        list->next = vtxllist_insert_rec(list->next, vertex);
     return list;
+}
+
+void vtxllist_insert(llist_t* list, vertex_t* vertex) {
+    list = vtxllist_insert_rec(list, vertex);
 }
 
 vertex_t* vtxllist_get(llist_t* list, char* name) {
@@ -37,6 +41,18 @@ void vtxllist_delete(llist_t* list) {
     free(list);
 }
 
+vertex_t** vtxllist_to_array(llist_t* list, int vertex_count) {
+    vertex_t** vertices = malloc(vertex_count * sizeof(vertex_t*));
+    llist_t* buffer = list;
+    int i = 0;
+    while (buffer != NULL && buffer->value != NULL && i < vertex_count) {
+        vertices[i] = (vertex_t*) buffer->value;
+        buffer = buffer->next;
+        i++;
+    }
+    return vertices;
+}
+
 // Structure
 
 vertex_t* vtx_create() {
@@ -45,7 +61,7 @@ vertex_t* vtx_create() {
     vertex->name_len = 0;
     vertex->colour = 0;
     vertex->neighbours = llist_create();
-    vertex->neighbours_len = 0;
+    vertex->valence = 0;
     return vertex;
 }
 
@@ -57,18 +73,22 @@ void vtx_delete(vertex_t* vertex) {
 
 // Tree interaction
 
-bstree_t* vtxbstree_insert(bstree_t* tree, vertex_t* vertex) {
+bstree_t* vtxbstree_insert_rec(bstree_t* tree, vertex_t* vertex) {
     if (tree == NULL)
         tree = bstree_create();
 
     if (tree->value == NULL)
         tree->value = vertex;
     else if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) < 0)
-        tree->lft = vtxbstree_insert(tree->lft, vertex);
+        tree->lft = vtxbstree_insert_rec(tree->lft, vertex);
     else if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) > 0)
-        tree->rgt = vtxbstree_insert(tree->rgt, vertex);
+        tree->rgt = vtxbstree_insert_rec(tree->rgt, vertex);
 
     return tree;
+}
+
+void vtxbstree_insert(bstree_t* tree, vertex_t* vertex) {
+    tree = vtxbstree_insert_rec(tree, vertex);
 }
 
 vertex_t* vtxbstree_get(bstree_t* tree, char* name) {
@@ -108,22 +128,14 @@ vertex_t** vtxbstree_infix(bstree_t* tree, int vertex_count) {
     int size = 0;
     res = vtxbstree_infix_rec(tree, res, &size);
     if (size != vertex_count) {
-        printf("Error: Infix path did not find expected vertex count: %d\n", vertex_count);
+        printf("Error: Infix path did not find expected vertex count: %d\n",
+               vertex_count);
         exit(EXIT_FAILURE);
     }
     return res;
 }
 
-// Miscelaneous
-
-void vtx_create_edge(vertex_t* start, vertex_t* end) {
-    if (strcmp(start->name, end->name) == 0)
-        return;
-    start->neighbours = vtxllist_insert(start->neighbours, end);
-    start->neighbours_len++;
-    end->neighbours = vtxllist_insert(end->neighbours, start);
-    end->neighbours_len++;
-}
+// File interaction
 
 void vtx_print_edges_rec(FILE* output_file, char* name, llist_t* edge) {
     if (edge == NULL || edge->value == NULL) return;
@@ -134,4 +146,65 @@ void vtx_print_edges_rec(FILE* output_file, char* name, llist_t* edge) {
 
 void vtx_print_edges(FILE* output_file, vertex_t* vertex) {
     vtx_print_edges_rec(output_file, vertex->name, vertex->neighbours);
+}
+
+// Processing
+
+void vtx_create_edge(vertex_t* start, vertex_t* end) {
+    if (strcmp(start->name, end->name) == 0)
+        return;
+    vtxllist_insert(start->neighbours, end);
+    start->valence++;
+    vtxllist_insert(end->neighbours, start);
+    end->valence++;
+}
+
+int vtx_sort_valence_desc_cmp(const void* v1, const void* v2) {
+    vertex_t* vtx1 = *((vertex_t**) v1);
+    vertex_t* vtx2 = *((vertex_t**) v2);
+    if (vtx1->valence != vtx2->valence)
+        return vtx2->valence - vtx1->valence;
+    return strcmp(vtx1->name, vtx2->name);
+}
+
+void vtx_sort_valence_desc(vertex_t** vertices, int vertex_count) {
+    qsort(vertices, vertex_count, sizeof(vertex_t*),
+          vtx_sort_valence_desc_cmp);
+}
+
+int vtx_sort_colour_asc_cmp(const void* v1, const void* v2) {
+    vertex_t* vtx1 = *((vertex_t**) v1);
+    vertex_t* vtx2 = *((vertex_t**) v2);
+    if (vtx1->colour != vtx2->colour)
+        return vtx1->colour - vtx2->colour;
+    return strcmp(vtx1->name, vtx2->name);
+}
+
+void vtx_sort_colour_asc(vertex_t** vertices, int vertex_count) {
+    qsort(vertices, vertex_count, sizeof(vertex_t*),
+          vtx_sort_colour_asc_cmp);
+}
+
+int vtx_get_smallest_colour(vertex_t* vertex) {
+    if (vertex->valence == 0)
+        return 1;
+    int colour = 1, previous_colour = 1;
+    vertex_t** neighbours = vtxllist_to_array(vertex->neighbours,
+                                              vertex->valence);
+    vtx_sort_colour_asc(neighbours, vertex->valence);
+    for (int i = 0; i < vertex->valence; i++) {
+        if (neighbours[i]->colour == 0)
+            continue;
+        if (neighbours[i]->colour - previous_colour > 1)
+            // The next used colour is greater than the last seen colour by more
+            // than 1, so the colour previous_colour+1 is available.
+            break;
+        previous_colour = neighbours[i]->colour;
+        if (colour == neighbours[i]->colour)
+            colour++;
+    }
+    if (colour == neighbours[vertex->valence-1]->colour)
+        colour++;
+    free(neighbours);
+    return colour;
 }

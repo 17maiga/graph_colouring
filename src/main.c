@@ -22,10 +22,18 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
 
+    // Read input file
     FILE* input_file = fopen(argv[1], "r");
     llist_t* graphs = gphs_read(fopen(argv[1], "r"), MAX_VERTEX_NAME_LEN);
     fclose(input_file);
 
+    // Reduce colours
+    gphs_reduce_colours(graphs);
+
+    // Apply custom algorithm
+    gphs_colour(graphs, CUSTOM);
+
+    // Write output file
     char output_file_name[strlen(argv[1]) + 8];
     strcpy(output_file_name, argv[1]);
     strcpy(output_file_name + strlen(argv[1]), ".colored");

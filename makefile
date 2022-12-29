@@ -9,12 +9,13 @@ SOURCES := $(shell find $(SRC_DIR) -type f -name *.$(SRC_EXT))
 OBJECTS := $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(SOURCES:.$(SRC_EXT)=.o))
 CFLAGS := -g
 INC := -I inc
+ARGS := res/graph.txt
 
 # Execution command
 # Builds the executable if needed and runs it
 run: $(TARGET)
 	@echo "MAKEFILE :: Running..."
-	@echo "MAKEFILE :: ./$(TARGET)"; ./$(TARGET)
+	@echo "MAKEFILE :: ./$(TARGET) $(ARGS)"; ./$(TARGET) $(ARGS)
 
 # Main build process
 # Creates the executable in the bin directory
