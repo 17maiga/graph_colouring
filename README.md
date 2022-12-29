@@ -54,3 +54,9 @@ If the `-s` option is specified, the program will create a separate file for
 each graph in the input file. These will be numbered from 1 to `n`, with `n` the
 number of graphs in the input file, and this number will be appended to the end
 of the output file's name.
+
+## Sources
+
+- [Welsh-Powell algorithm](http://mrsleblancsmath.pbworks.com/w/file/fetch/46119304/vertex%20coloring%20algorithm.pdf)
+- [DSatur](https://en.wikipedia.com/wiki/DSatur)
+- [RLF Algorithm](https://en.wikipedia.com/wiki/Recursive_largest_first_algorithm)
