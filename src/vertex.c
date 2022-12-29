@@ -61,7 +61,7 @@ vertex_t* vtx_create() {
     vertex->name_len = 0;
     vertex->colour = 0;
     vertex->neighbours = llist_create();
-    vertex->valence = 0;
+    vertex->order = 0;
     return vertex;
 }
 
@@ -154,22 +154,22 @@ void vtx_create_edge(vertex_t* start, vertex_t* end) {
     if (strcmp(start->name, end->name) == 0)
         return;
     vtxllist_insert(start->neighbours, end);
-    start->valence++;
+    start->order++;
     vtxllist_insert(end->neighbours, start);
-    end->valence++;
+    end->order++;
 }
 
-int vtx_sort_valence_desc_cmp(const void* v1, const void* v2) {
+int vtx_sort_order_desc_cmp(const void* v1, const void* v2) {
     vertex_t* vtx1 = *((vertex_t**) v1);
     vertex_t* vtx2 = *((vertex_t**) v2);
-    if (vtx1->valence != vtx2->valence)
-        return vtx2->valence - vtx1->valence;
+    if (vtx1->order != vtx2->order)
+        return vtx2->order - vtx1->order;
     return strcmp(vtx1->name, vtx2->name);
 }
 
-void vtx_sort_valence_desc(vertex_t** vertices, size_t vertex_count) {
+void vtx_sort_order_desc(vertex_t** vertices, size_t vertex_count) {
     qsort(vertices, vertex_count, sizeof(vertex_t*),
-          vtx_sort_valence_desc_cmp);
+          vtx_sort_order_desc_cmp);
 }
 
 int vtx_sort_colour_asc_cmp(const void* v1, const void* v2) {
@@ -186,13 +186,13 @@ void vtx_sort_colour_asc(vertex_t** vertices, size_t vertex_count) {
 }
 
 colour_t vtx_get_smallest_colour(vertex_t* vertex) {
-    if (vertex->valence == 0)
+    if (vertex->order == 0)
         return 1;
     colour_t colour = 1, previous_colour = 1;
     vertex_t** neighbours = vtxllist_to_array(vertex->neighbours,
-                                              vertex->valence);
-    vtx_sort_colour_asc(neighbours, vertex->valence);
-    for (size_t i = 0; i < vertex->valence; i++) {
+                                              vertex->order);
+    vtx_sort_colour_asc(neighbours, vertex->order);
+    for (size_t i = 0; i < vertex->order; i++) {
         if (neighbours[i]->colour == 0)
             continue;
         if (neighbours[i]->colour - previous_colour > 1)
@@ -203,7 +203,7 @@ colour_t vtx_get_smallest_colour(vertex_t* vertex) {
         if (colour == neighbours[i]->colour)
             colour++;
     }
-    if (colour == neighbours[vertex->valence-1]->colour)
+    if (colour == neighbours[vertex->order-1]->colour)
         colour++;
     free(neighbours);
     return colour;
@@ -225,17 +225,63 @@ vertex_t** vtx_filter_coloured(vertex_t** vertices, size_t vertex_count,
     for (size_t i = 0; i < vertex_count; i++)
         if (vertices[i]->colour == 0)
             (*filtered_count)++;
-
     vertex_t** filtered = malloc(*filtered_count * sizeof(vertex_t*));
     if (filtered == NULL) {
         perror("Error: vtx_filter_coloured");
         exit(EXIT_FAILURE);
     }
-
     int j = 0;
     for (size_t i = 0; i < vertex_count; i++)
         if (vertices[i]->colour == 0)
             filtered[j++] = vertices[i];
-
     return filtered;
+}
+
+int vtx_get_dsatur(vertex_t* vertex) {
+    llist_t* buffer = vertex->neighbours;
+    int* neighbouring_colours = malloc(vertex->order * sizeof(int));
+    int dsatur = 0;
+    while (buffer != NULL && buffer->value != NULL) {
+        int is_new_colour = 1;
+        for (int i = 0; i < dsatur; i++)
+            if (((vertex_t*) buffer->value)->colour == neighbouring_colours[i]
+                && ((vertex_t*) buffer->value)->colour != 0)
+                is_new_colour = 0;
+        if (is_new_colour == 1)
+            neighbouring_colours[++dsatur] =
+                ((vertex_t*) buffer->value)->colour;
+        buffer = buffer->next;
+    }
+    free(neighbouring_colours);
+    return dsatur;
+}
+
+int vtx_get_uncoloured_order(vertex_t* vertex) {
+    llist_t* buffer = vertex->neighbours;
+    int order = 0;
+    while (buffer != NULL && buffer->value != NULL) {
+        if (((vertex_t*) buffer->value)->colour == 0)
+            order++;
+        buffer = buffer->next;
+    }
+    return order;
+}
+
+vertex_t* vtx_get_highest_dsatur(vertex_t** vertices, size_t vertex_count) {
+    vertex_t* vertex = NULL;
+    int highest_dsatur = 0;
+    for (size_t i = 0; i < vertex_count; i++) {
+        int dsatur = vtx_get_dsatur(vertices[i]);
+        if ((dsatur > highest_dsatur) ||
+            (dsatur == highest_dsatur &&
+             ((vtx_get_uncoloured_order(vertices[i]) >
+               vtx_get_uncoloured_order(vertex)) ||
+              (vtx_get_uncoloured_order(vertices[i]) ==
+               vtx_get_uncoloured_order(vertex) &&
+               strcmp(vertices[i]->name, vertex->name) < 0)))) {
+            vertex = vertices[i];
+            highest_dsatur = dsatur;
+        }
+    }
+    return vertex;
 }
