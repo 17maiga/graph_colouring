@@ -8,12 +8,14 @@
 
 // Structure
 
+typedef int colour_t;
+
 typedef struct vertex_s {
     char* name;
-    int name_len;
-    int colour;
+    size_t name_len;
+    colour_t colour;
     llist_t* neighbours;
-    int valence; // Number of neigbours
+    size_t valence; // Number of neigbours
 } vertex_t;
 
 // Linked list interaction
@@ -55,7 +57,7 @@ void vtxllist_delete(llist_t* list);
  * @param[in]  vertex_count  The number of vertices in the list.
  * @param[out] vertices      An array of pointers to the list's vertices.
  */
-vertex_t** vtxllist_to_array(llist_t* list, int vertex_count);
+vertex_t** vtxllist_to_array(llist_t* list, size_t vertex_count);
 
 // Memory
 
@@ -110,7 +112,7 @@ void vtxbstree_delete(bstree_t* tree);
  * @param[in]  vertex_count  The number of vertices in the tree.
  * @param[out] vertices      An array of pointers to the tree's vertices.
  */
-vertex_t** vtxbstree_infix(bstree_t* tree, int vertex_count);
+vertex_t** vtxbstree_infix(bstree_t* tree, size_t vertex_count);
 
 // File interaction
 
@@ -143,7 +145,7 @@ void vtx_create_edge(vertex_t* start, vertex_t* end);
  * @param[in] vertices
  * @param[in] vertex_count  The number of vertices in the array.
  */
-void vtx_sort_valence_desc(vertex_t** vertices, int vertex_count);
+void vtx_sort_valence_desc(vertex_t** vertices, size_t vertex_count);
 
 /**
  * Sorts an array of vertices in place according to their colour, in ascending
@@ -153,7 +155,7 @@ void vtx_sort_valence_desc(vertex_t** vertices, int vertex_count);
  * @param[in] vertices
  * @param[in] vertex_count  The number of vertices in the array.
  */
-void vtx_sort_colour_asc(vertex_t** vertices, int vertex_count);
+void vtx_sort_colour_asc(vertex_t** vertices, size_t vertex_count);
 
 /**
  * Gets the smallest available colour for a vertex (the smallest colour not used
@@ -162,6 +164,29 @@ void vtx_sort_colour_asc(vertex_t** vertices, int vertex_count);
  * @param[in]  vertex
  * @param[out] colour
  */
-int vtx_get_smallest_colour(vertex_t* vertex);
+colour_t vtx_get_smallest_colour(vertex_t* vertex);
+
+/**
+ * Checks if a colour is used by any of a vertex's neighbours.
+ *
+ * @param[in]  vertex
+ * @param[in]  colour
+ * @param[out] has_neighbouring_colour 1 if the colour is present, 0 otherwise
+ */
+int vtx_has_neighbouring_colour(vertex_t* vertex, colour_t colour);
+
+/**
+ * Returns an array of vertices containing all the uncoloured vertices in an
+ * array.
+ *
+ * @warning This function allocates a new array in memory.
+ *
+ * @param[in]  vertices
+ * @param[in]  vertex_count   The size of the original array.
+ * @param[in]  filtered_count The size of the returned array.
+ * @param[out] filtered_array
+ */
+vertex_t** vtx_filter_coloured(vertex_t** vertices, size_t vertex_count,
+                               size_t* filtered_count);
 
 #endif // GRAPH_COLOUR_VERTEX_H

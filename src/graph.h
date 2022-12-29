@@ -10,7 +10,7 @@
 
 typedef struct graph_s {
     bstree_t* vertices;
-    int vertex_count;
+    size_t vertex_count;
 } graph_t;
 
 // Memory
@@ -77,7 +77,7 @@ typedef enum {
  * @param[in]  max_name_len  The maximum length possible for a vertex name.
  * @param[out] graphs        A linked list containing the graphs.
  */
-llist_t* gphs_read(FILE* input_file, int max_name_len);
+llist_t* gphs_read(FILE* input_file, size_t max_name_len);
 
 /**
  * Writes any number of graphs to an output file.
