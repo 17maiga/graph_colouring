@@ -10,7 +10,7 @@
 
 typedef struct graph_s {
     bstree_t* vertices;
-    int vertex_count;
+    size_t order;
 } graph_t;
 
 // Memory
@@ -77,7 +77,7 @@ typedef enum {
  * @param[in]  max_name_len  The maximum length possible for a vertex name.
  * @param[out] graphs        A linked list containing the graphs.
  */
-llist_t* gphs_read(FILE* input_file, int max_name_len);
+llist_t* gphs_read(FILE* input_file, size_t max_name_len);
 
 /**
  * Writes any number of graphs to an output file.
@@ -92,9 +92,16 @@ void gphs_write(FILE* output_file, llist_t* graph);
 typedef enum {
     CUSTOM,
     WELSH_POWELL,
-    DSATUR,
-    RLF
+    DSATUR
 } algorithm_t;
+
+/**
+ * Checks if a graph still has uncoloured vertices.
+ *
+ * @param[in]  graph
+ * @param[out] 1 if it does, 0 otherwise.
+ */
+int gph_has_uncoloured_vertices(graph_t* graph);
 
 /**
  * Colours a graph according to a specific algorithm.

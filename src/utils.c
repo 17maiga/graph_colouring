@@ -6,9 +6,10 @@
 
 void usage() {
     printf("Usage: graph_colour [options] <filename>\nOptions:\n");
-    printf("  -h\t\tDisplay this help message.\n");
+    printf("  -h            Display this help message.\n");
     // FIXME: Implement this stuff or delete it.
-    printf("  -o FILENAME\tPrint output into FILENAME.\n");
-    printf("  -s\t\tSplit output into separate files (one per graph).\n");
+    printf("  -i            Use interactive mode.\n");
+    printf("  -o FILENAME   Print output into FILENAME.\n");
+    printf("  -s            Split output into separate files.\n");
     exit(EXIT_FAILURE);
 }
