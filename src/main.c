@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     gphs_reduce_colours(graphs);
 
     // Apply custom algorithm
-    gphs_colour(graphs, WELSH_POWELL);
+    gphs_colour(graphs, DSATUR);
 
     // Write output file
     char output_file_name[strlen(argv[1]) + 8];
