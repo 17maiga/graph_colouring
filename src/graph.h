@@ -92,8 +92,7 @@ void gphs_write(FILE* output_file, llist_t* graph);
 typedef enum {
     CUSTOM,
     WELSH_POWELL,
-    DSATUR,
-    RLF
+    DSATUR
 } algorithm_t;
 
 /**

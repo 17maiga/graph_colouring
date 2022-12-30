@@ -294,10 +294,6 @@ void gph_colour_dsatur(graph_t* graph) {
     free(uncoloured);
 }
 
-void gph_colour_rlf(graph_t* graph) {
-    return;
-}
-
 void gph_colour(graph_t* graph, algorithm_t algorithm) {
     switch (algorithm) {
         case CUSTOM:
@@ -308,9 +304,6 @@ void gph_colour(graph_t* graph, algorithm_t algorithm) {
             break;
         case DSATUR:
             gph_colour_dsatur(graph);
-            break;
-        case RLF:
-            gph_colour_rlf(graph);
             break;
     }
 }
