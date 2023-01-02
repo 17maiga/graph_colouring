@@ -27,6 +27,8 @@ int main(int argc, char** argv) {
     llist_t* graphs = gphs_read(fopen(argv[1], "r"), MAX_VERTEX_NAME_LEN);
     fclose(input_file);
 
+    main_menu(graphs);
+
     // Reduce colours
     gphs_reduce_colours(graphs);
 
