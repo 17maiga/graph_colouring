@@ -96,6 +96,24 @@ void vtxbstree_insert(bstree_t* tree, vertex_t* vertex);
 vertex_t* vtxbstree_get(bstree_t* tree, char* name);
 
 /**
+ * Gets the smallest vertex from a vertex tree, based on the vertex name.
+ *
+ * @param[in]  tree
+ * @param[out] vertex
+ */
+vertex_t* vtxbstree_get_min(bstree_t* tree);
+
+/**
+ * Removes a vertex from a vertex tree, based on the vertex name.
+ *
+ * @warning This will not free the vertex, only remove it from the tree.
+ *
+ * @param[in] tree
+ * @param[in] vertex
+ */
+void vtxbstree_remove(bstree_t* tree, vertex_t* name);
+
+/**
  * Frees a vertex tree from memory.
  *
  * @param[in] tree
