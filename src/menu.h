@@ -3,6 +3,7 @@
 #ifndef GRAPH_COLOR_UTILS_H
 #define GRAPH_COLOR_UTILS_H
 
+
 /**
  * Prints the program's help information and exits.
  */
@@ -13,7 +14,7 @@ void usage();
  *
  * @param[in] graphs
  */
-void main_menu(llist_t* graphs);
+int main_menu(llist_t* graphs);
 
 /**
  * Loads the program's graph creation menu.

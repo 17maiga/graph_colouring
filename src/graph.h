@@ -56,6 +56,18 @@ graph_t* gphllist_get(llist_t* list, int index);
  */
 void gphllist_delete(llist_t* list);
 
+/**
+ * Traverses a linked list from start to end, returning an array of pointers to
+ * its vertices.
+ *
+ * @warning This method allocates a new array into memory.
+ *
+ * @param[in] graphs
+ * @param[in] graph_count
+ * @param[out] array
+ */
+graph_t** gphllist_to_array(llist_t* graphs, size_t graph_count);
+
 // File interaction
 
 typedef enum {
@@ -86,6 +98,14 @@ llist_t* gphs_read(FILE* input_file, size_t max_name_len);
  * @param[in] graphs       A linked list containing the graphs.
  */
 void gphs_write(FILE* output_file, llist_t* graph);
+
+/**
+ * Writes any number of graphs to an output file.
+ *
+ * @param[in] output_file
+ * @param[in] graphs       A linked list containing the graphs.
+ */
+void gph_write(FILE* output_file, graph_t* graph);
 
 // Processing
 

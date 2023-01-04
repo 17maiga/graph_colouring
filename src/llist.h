@@ -23,4 +23,8 @@ llist_t* llist_create();
  */
 void llist_delete(llist_t* list);
 
+
+size_t gphllist_count(llist_t* list);
+
+
 #endif // GRAPH_COLOUR_LLIST_H

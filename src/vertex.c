@@ -94,7 +94,7 @@ void vtxbstree_insert(bstree_t* tree, vertex_t* vertex) {
 vertex_t* vtxbstree_get(bstree_t* tree, char* name) {
     if (tree == NULL || tree->value == NULL) {
         printf("Error: vtxtree_get: No such vertex: %s\n", name);
-        exit(EXIT_FAILURE);
+        return NULL;
     }
 
     if (strcmp(name, ((vertex_t*) tree->value)->name) < 0)

@@ -19,3 +19,14 @@ void llist_delete(llist_t* list) {
     }
     free(list);
 }
+
+int llist_length(llist_t* list) {
+    llist_t* buffer = list;
+    int size = 0;
+    while (buffer != NULL && buffer->value != NULL){
+        size ++;
+        buffer = buffer->next;
+    }
+
+    return size;
+}

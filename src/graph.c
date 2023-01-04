@@ -54,6 +54,18 @@ void gphllist_delete(llist_t* list) {
     free(list);
 }
 
+graph_t** gphllist_to_array(llist_t* list, size_t graph_count) {
+    graph_t** graphs = malloc(graph_count * sizeof(graph_t*));
+    llist_t* buffer = list;
+    size_t i = 0;
+    while (buffer != NULL && buffer->value != NULL && i < graph_count) {
+        graphs[i] = (graph_t*) buffer->value;
+        buffer = buffer->next;
+        i++;
+    }
+    return graphs;
+}
+
 // File interaction
 
 llist_t* gphs_read(FILE* input_file, size_t max_name_len) {
@@ -121,6 +133,11 @@ llist_t* gphs_read(FILE* input_file, size_t max_name_len) {
                     strncpy(name, buffer, buflen);
                     buflen = 0;
                     vertex_buffer = vtxbstree_get(graph_buffer->vertices, name);
+                    if (vertex_buffer == NULL)
+                    {
+                        exit(EXIT_FAILURE);
+                    }
+                    
                     status = EDGE_READ_END;
                 } else buffer[buflen++] = c;
                 break;
@@ -131,6 +148,11 @@ llist_t* gphs_read(FILE* input_file, size_t max_name_len) {
                     strncpy(name, buffer, buflen);
                     buflen = 0;
                     vertex_t* vertex = vtxbstree_get(graph_buffer->vertices, name);
+                    if (vertex == NULL)
+                    {
+                        exit(EXIT_FAILURE);
+                    }
+                    
                     vtx_create_edge(vertex, vertex_buffer);
                     status = EDGES_READ;
                 } else buffer[buflen++] = c;
@@ -168,6 +190,21 @@ void gphs_write(FILE* output_file, llist_t* graphs) {
     fprintf(output_file, "]}\n");
     free(vertices);
     gphs_write(output_file, graphs->next);
+}
+
+void gph_write(FILE* output_file, graph_t* graph) {
+    fprintf(output_file, "{[");
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
+    for (size_t i = 0; i < graph->order-1; i++) {
+        fprintf(output_file, "%s:%d,", vertices[i]->name, vertices[i]->colour);
+    }
+    fprintf(output_file, "%s:%d][", vertices[graph->order-1]->name,
+            vertices[graph->order-1]->colour);
+    for (size_t i = 0; i < graph->order; i++) {
+        vtx_print_edges(output_file, vertices[i]);
+    }
+    fprintf(output_file, "]}\n");
+    free(vertices);
 }
 
 // Processing

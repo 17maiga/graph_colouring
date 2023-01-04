@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "graph.h": "c",
+        "vertex.h": "c",
+        "llist.h": "c",
+        "getopt.h": "c",
+        "menu_create_graph.h": "c",
+        "typeinfo": "c"
+    }
+}
