@@ -15,23 +15,10 @@ void create_vertex_menu(graph_t* graph) {
     vertex->name = malloc((strlen(vName) +1) * sizeof(char));
     strcpy(vertex->name, vName);
 
-    vertex->name_len = strlen(vertex->name);
-    
-    if (graph->order > 0)
-    {
-        vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
-        printf("Existing vertices: ");
-        for (size_t i = 0; i < graph->order; i++) {
-            printf("%s ", vertices[i]->name);
-        }
-        printf("\n");
-        free(vertices);
-    } else {
-        printf("No existing vertices..\n");
-    }
-    
+    vertex->name_len = strlen(vertex->name);    
     
     if (graph->order > 0) {
+        print_graph_vertices(graph);
     
         int running = 1;
         char nName[MAX_VERTEX_NAME_LEN];
@@ -76,24 +63,22 @@ void create_vertex_menu(graph_t* graph) {
                     break;
             }
         }
+        
+    } else {
+        printf("No existing vertices..\n");
     }
-
     vtxbstree_insert(graph->vertices, vertex);
+    printf("test");
     graph->order ++;
 }
 
-// void delete_vertex_menu(graph_t* graph) {
-//     printf("Please enter the vertex to delete: ");
-//     vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
-//     printf("Existing vertices: ");
-//     for (int i = 0; i < graph->order; i++) {
-//         printf("%s ", vertices[i]->name);
-//     }
-//     printf("\n");
-//     free(vertices);
-//     // while (hasNeighbours == 1) {
-//     // }
-//     vtx_delete();
-//     graph->order ++;
-//     printf("You are now on the graph creation menu\n");
-// }
+void delete_vertex_menu(graph_t* graph) {
+    print_graph_vertices(graph);
+    printf("Please enter the vertex to delete: ");
+    char vName[MAX_VERTEX_NAME_LEN + 1];
+    scanf("%s", vName);
+    vertex_t* vertex = vtxbstree_get(graph->vertices, vName);
+    vtxbstree_remove(graph->vertices, vertex);
+    vtx_delete(vertex);
+    graph->order --;    
+}

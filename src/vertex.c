@@ -76,7 +76,6 @@ void vtx_delete(vertex_t* vertex) {
 bstree_t* vtxbstree_insert_rec(bstree_t* tree, vertex_t* vertex) {
     if (tree == NULL)
         tree = bstree_create();
-
     if (tree->value == NULL)
         tree->value = vertex;
     else if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) < 0)
@@ -106,9 +105,9 @@ vertex_t* vtxbstree_get(bstree_t* tree, char* name) {
 }
 
 vertex_t* vtxbstree_get_min(bstree_t* tree) {
-    if (tree == NULL || tree->value != NULL)
+    if (tree == NULL || tree->value == NULL)
         return NULL;
-    if (tree->lft != NULL && tree->lft != NULL)
+    if (tree->lft != NULL && tree->lft->value != NULL)
         return vtxbstree_get_min(tree->lft);
     return (vertex_t*) tree->value;
 }

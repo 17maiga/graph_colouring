@@ -15,6 +15,16 @@ void usage() {
     exit(EXIT_FAILURE);
 }
 
+void print_graph_vertices(graph_t* graph) {
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
+        printf("Existing vertices: ");
+        for (size_t i = 0; i < graph->order; i++) {
+            printf("%s ", vertices[i]->name);
+        }
+        printf("\n");
+        free(vertices);
+}
+
 void display_main_menu(llist_t* graphs) {
 
     int graph_count = 0; llist_t* buffer = graphs;
@@ -135,7 +145,8 @@ void create_graph_menu(llist_t* graphs) {
             case 'B':
             case 'b':
                 while (c != '\n') c = getchar();
-                printf("BBB\n");
+                delete_vertex_menu(graph);
+                display_graph_creation_menu();
                 break;
             case 'C':
             case 'c':
