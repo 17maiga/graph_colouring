@@ -97,7 +97,7 @@ llist_t* gphs_read(FILE* input_file, size_t max_name_len) {
                     strncpy(vertex_buffer->name, buffer, buflen);
                     buflen = 0;
                     // Insert the vertex into the graph's vertex tree
-                    vtxbstree_insert(graph_buffer->vertices, vertex_buffer);
+                    graph_buffer->vertices = vtxbstree_insert(graph_buffer->vertices, vertex_buffer);
                     graph_buffer->order++;
                     if (c == ':') status = VERTEX_READ_COLOUR;
                     else vertex_buffer = NULL;

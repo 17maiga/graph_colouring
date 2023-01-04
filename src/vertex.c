@@ -73,21 +73,17 @@ void vtx_delete(vertex_t* vertex) {
 
 // Tree interaction
 
-bstree_t* vtxbstree_insert_rec(bstree_t* tree, vertex_t* vertex) {
+bstree_t* vtxbstree_insert(bstree_t* tree, vertex_t* vertex) {
     if (tree == NULL)
         tree = bstree_create();
     if (tree->value == NULL)
         tree->value = vertex;
     else if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) < 0)
-        tree->lft = vtxbstree_insert_rec(tree->lft, vertex);
+        tree->lft = vtxbstree_insert(tree->lft, vertex);
     else if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) > 0)
-        tree->rgt = vtxbstree_insert_rec(tree->rgt, vertex);
+        tree->rgt = vtxbstree_insert(tree->rgt, vertex);
 
     return tree;
-}
-
-void vtxbstree_insert(bstree_t* tree, vertex_t* vertex) {
-    tree = vtxbstree_insert_rec(tree, vertex);
 }
 
 vertex_t* vtxbstree_get(bstree_t* tree, char* name) {
@@ -112,13 +108,13 @@ vertex_t* vtxbstree_get_min(bstree_t* tree) {
     return (vertex_t*) tree->value;
 }
 
-bstree_t* vtxbstree_remove_rec(bstree_t* tree, vertex_t* vertex) {
+bstree_t* vtxbstree_remove(bstree_t* tree, vertex_t* vertex) {
     if (tree == NULL || vertex == NULL)
         return NULL;
     if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) < 0) {
-        tree->lft = vtxbstree_remove_rec(tree->lft, vertex);
+        tree->lft = vtxbstree_remove(tree->lft, vertex);
     } else if (strcmp(vertex->name, ((vertex_t*) tree->value)->name) > 0) {
-        tree->rgt = vtxbstree_remove_rec(tree->rgt, vertex);
+        tree->rgt = vtxbstree_remove(tree->rgt, vertex);
     } else {
         if (tree->lft == NULL && tree->rgt == NULL) {
             free(tree);
@@ -134,14 +130,10 @@ bstree_t* vtxbstree_remove_rec(bstree_t* tree, vertex_t* vertex) {
         } else {
             vertex_t* tmp = vtxbstree_get_min(tree->rgt);
             tree->value = tmp;
-            tree->rgt = vtxbstree_remove_rec(tree->rgt, tmp);
+            tree->rgt = vtxbstree_remove(tree->rgt, tmp);
         }
     }
     return tree;
-}
-
-void vtxbstree_remove(bstree_t* tree, vertex_t* vertex) {
-    tree = vtxbstree_remove_rec(tree, vertex);
 }
 
 void vtxbstree_delete(bstree_t* tree) {

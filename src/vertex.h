@@ -83,8 +83,9 @@ void vtx_delete(vertex_t* vertex);
  *
  * @param[in]  tree
  * @param[in]  vertex
+ * @param[out] tree
  */
-void vtxbstree_insert(bstree_t* tree, vertex_t* vertex);
+bstree_t* vtxbstree_insert(bstree_t* tree, vertex_t* vertex);
 
 /**
  * Gets a vertex from a vertex tree, based on the vertex name.
@@ -110,8 +111,9 @@ vertex_t* vtxbstree_get_min(bstree_t* tree);
  *
  * @param[in] tree
  * @param[in] vertex
+ * @param[out] tree
  */
-void vtxbstree_remove(bstree_t* tree, vertex_t* name);
+bstree_t* vtxbstree_remove(bstree_t* tree, vertex_t* name);
 
 /**
  * Frees a vertex tree from memory.

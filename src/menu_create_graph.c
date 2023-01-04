@@ -67,7 +67,7 @@ void create_vertex_menu(graph_t* graph) {
     } else {
         printf("No existing vertices..\n");
     }
-    vtxbstree_insert(graph->vertices, vertex);
+    graph->vertices = vtxbstree_insert(graph->vertices, vertex);
     printf("test");
     graph->order ++;
 }
@@ -78,7 +78,7 @@ void delete_vertex_menu(graph_t* graph) {
     char vName[MAX_VERTEX_NAME_LEN + 1];
     scanf("%s", vName);
     vertex_t* vertex = vtxbstree_get(graph->vertices, vName);
-    vtxbstree_remove(graph->vertices, vertex);
+    graph->vertices = vtxbstree_remove(graph->vertices, vertex);
     vtx_delete(vertex);
-    graph->order --;    
+    graph->order--;    
 }
