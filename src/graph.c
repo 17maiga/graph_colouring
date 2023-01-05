@@ -259,10 +259,14 @@ void gph_colour_custom(graph_t* graph) {
     vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
     vtx_sort_order_desc(vertices, graph->order);
 
-    for (size_t i = 0; i < graph->order; i++)
-        vertices[i]->colour = vtx_get_smallest_colour(vertices[i]);
-
+    size_t coloured_size;
+    vertex_t** uncoloured = vtx_filter_coloured(vertices, graph->order, &coloured_size);
     free(vertices);
+
+    for (size_t i = 0; i < coloured_size; i++)
+        uncoloured[i]->colour = vtx_get_smallest_colour(uncoloured[i]);
+
+    free(uncoloured);
 }
 
 // Welsh-Powell Algorithm
