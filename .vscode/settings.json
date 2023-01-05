@@ -5,6 +5,9 @@
         "llist.h": "c",
         "getopt.h": "c",
         "menu_create_graph.h": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "bstree.h": "c",
+        "menu.h": "c",
+        "menu_color_graph.h": "c"
     }
 }

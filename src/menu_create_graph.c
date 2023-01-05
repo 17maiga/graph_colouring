@@ -68,7 +68,6 @@ void create_vertex_menu(graph_t* graph) {
         printf("No existing vertices..\n");
     }
     graph->vertices = vtxbstree_insert(graph->vertices, vertex);
-    printf("test");
     graph->order ++;
 }
 

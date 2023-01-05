@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #ifndef GRAPH_COLOUR_LLIST_H
 #define GRAPH_COLOUR_LLIST_H
 

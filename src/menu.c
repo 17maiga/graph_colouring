@@ -4,6 +4,7 @@
 
 #include "menu.h"
 #include "menu_create_graph.h"
+#include "menu_color_graph.h"
 
 void usage() {
     printf("Usage: graph_colour [options] <filename>\nOptions:\n");
@@ -17,17 +18,18 @@ void usage() {
 
 void print_graph_vertices(graph_t* graph) {
     vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
-        printf("Existing vertices: ");
-        for (size_t i = 0; i < graph->order; i++) {
-            printf("%s ", vertices[i]->name);
-        }
-        printf("\n");
-        free(vertices);
+    printf("Existing vertices: ");
+    for (size_t i = 0; i < graph->order; i++) {
+        printf("%s ", vertices[i]->name);
+    }
+    printf("\n");
+    free(vertices);
 }
 
 void display_main_menu(llist_t* graphs) {
 
-    int graph_count = 0; llist_t* buffer = graphs;
+    int graph_count = 0;
+    llist_t* buffer = graphs;
     while (buffer != NULL && buffer->value != NULL) {
         graph_count++;
         buffer = buffer->next;
@@ -56,6 +58,14 @@ void display_graph_coloration_menu() {
     printf("| A. Color only one graph.    |\n");
     printf("| B. Color all graphs.        |\n");
     printf("| C. Return to main menu.     |\n");
+    printf("===============================\n");
+}
+
+void display_graph_coloration_algo_menu() {
+    printf("========== algorithm ==========\n");
+    printf("| A. DSATUR                   |\n");
+    printf("| B. WELSH POWELL             |\n");
+    printf("| C. CUSTOM                   |\n");
     printf("===============================\n");
 }
 
@@ -145,6 +155,7 @@ void create_graph_menu(llist_t* graphs) {
             case 'B':
             case 'b':
                 while (c != '\n') c = getchar();
+                menuBack = 0;
                 delete_vertex_menu(graph);
                 display_graph_creation_menu();
                 break;
@@ -184,13 +195,13 @@ void color_graph_menu(llist_t* graphs) {
             case 'A':
             case 'a':
                 while (c != '\n') c = getchar();
-                printf("AAA\n");
+                color_one_graph_menu(graphs);
                 display_graph_coloration_menu();
                 break;
             case 'B':
             case 'b':
                 while (c != '\n') c = getchar();
-                printf("BBB\n");
+                algorithm_t algorithm = chose_alorithm_menu();
                 display_graph_coloration_menu();
                 break;
             case 'C':
