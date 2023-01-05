@@ -27,15 +27,7 @@ void print_graph_vertices(graph_t* graph) {
 }
 
 void display_main_menu(llist_t* graphs) {
-
-    int graph_count = 0;
-    llist_t* buffer = graphs;
-    while (buffer != NULL && buffer->value != NULL) {
-        graph_count++;
-        buffer = buffer->next;
-    }
-
-    printf("%d graphs loaded.\n", graph_count);
+    printf("%ld graphs loaded.\n", llist_length(graphs));
     printf("=========== Options ===========\n");
     printf("| A. Create a new graph.      |\n");
     printf("| B. Edit an existing graph.  |\n");
@@ -50,22 +42,6 @@ void display_graph_creation_menu() {
     printf("| B. Delete a vertex.         |\n");
     printf("| C. Print existing vertices. |\n");
     printf("| D. Return to main menu.     |\n");
-    printf("===============================\n");
-}
-
-void display_graph_coloration_menu() {
-    printf("==== Graph coloration menu ====\n");
-    printf("| A. Color only one graph.    |\n");
-    printf("| B. Color all graphs.        |\n");
-    printf("| C. Return to main menu.     |\n");
-    printf("===============================\n");
-}
-
-void display_graph_coloration_algo_menu() {
-    printf("========== algorithm ==========\n");
-    printf("| A. DSATUR                   |\n");
-    printf("| B. WELSH POWELL             |\n");
-    printf("| C. CUSTOM                   |\n");
     printf("===============================\n");
 }
 
@@ -94,6 +70,7 @@ int main_menu(llist_t* graphs) {
             case 'c':
                 while (c != '\n') c = getchar();
                 color_graph_menu(graphs);
+                display_main_menu(graphs);
                 break;
             case 'D':
             case 'd':
@@ -182,34 +159,4 @@ void create_graph_menu(llist_t* graphs) {
 
     gphllist_insert(graphs, graph);
     display_main_menu(graphs);
-}
-
-void color_graph_menu(llist_t* graphs) {
-    display_graph_coloration_menu();
-
-    int running = 1;
-    while (running == 1) {
-        printf("Please enter your choice: ");
-        char c = getchar();
-        switch (c) {
-            case 'A':
-            case 'a':
-                while (c != '\n') c = getchar();
-                color_one_graph_menu(graphs);
-                display_graph_coloration_menu();
-                break;
-            case 'B':
-            case 'b':
-                while (c != '\n') c = getchar();
-                algorithm_t algorithm = chose_alorithm_menu();
-                display_graph_coloration_menu();
-                break;
-            case 'C':
-            case 'c':
-                while (c != '\n') c = getchar();
-                display_main_menu(graphs);
-                running = 0;
-                break;
-        }
-    }
 }

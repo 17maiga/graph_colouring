@@ -32,6 +32,23 @@ vertex_t* vtxllist_get(llist_t* list, char* name) {
     return vtxllist_get(list->next, name);
 }
 
+llist_t* vtxllist_remove(llist_t* list, vertex_t* vertex) {
+    if (list == NULL) {
+        return list;
+    } else if (strcmp(((vertex_t*) list->value)->name, vertex->name) == 0) {
+        llist_t* tmp = list->next;
+        free(list);
+        list = tmp;
+    } else if (strcmp(((vertex_t*) list->next->value)->name, vertex->name) == 0) {
+        llist_t* tmp = list->next;
+        list->next = tmp->next;
+        free(tmp);
+    } else {
+        list = vtxllist_remove(list->next, vertex);
+    }
+    return list;
+}
+
 void vtxllist_delete(llist_t* list) {
     if (list != NULL) {
         // No freeing of the list's value, as it will be freed by the tree's
@@ -66,6 +83,11 @@ vertex_t* vtx_create() {
 }
 
 void vtx_delete(vertex_t* vertex) {
+    llist_t* buffer = vertex->neighbours;
+    while (buffer != NULL)
+        if (buffer->value != NULL)
+            ((vertex_t*) buffer->value)->neighbours = vtxllist_remove(
+                ((vertex_t*) buffer->value)->neighbours, vertex);
     free(vertex->name);
     vtxllist_delete(vertex->neighbours);
     free(vertex);

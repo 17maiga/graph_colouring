@@ -97,6 +97,16 @@ bstree_t* vtxbstree_insert(bstree_t* tree, vertex_t* vertex);
 vertex_t* vtxbstree_get(bstree_t* tree, char* name);
 
 /**
+ * @brief Removes a vertex from a linked list.
+ * Does not free the vertex from memory.
+ * 
+ * @param list 
+ * @param vertex 
+ * @return llist_t* 
+ */
+llist_t* vtxllist_remove(llist_t* list, vertex_t* vertex);
+
+/**
  * Gets the smallest vertex from a vertex tree, based on the vertex name.
  *
  * @param[in]  tree

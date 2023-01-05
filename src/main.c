@@ -17,25 +17,24 @@ int main(int argc, char** argv) {
     int opt;
 
     while ((opt = getopt(argc, argv, ":o:sih")) != -1) {
-        switch (opt)
-        {
-        case 'h':
-            usage();
-            break;
-        case 'i':
-            haveMenu = 1;
-            break;
-        case 's': 
-            haveToSplit = 1;
-            break;
-        case 'o':
-            strcpy(outputFilename, optarg);
-            isSetOutputFilename = 1;
-            break;
-        case '?':
-            printf("Error: Unknown option: %c\n", optopt);
-            usage();
-            break;
+        switch (opt) {
+            case 'h':
+                usage();
+                break;
+            case 'i':
+                haveMenu = 1;
+                break;
+            case 's': 
+                haveToSplit = 1;
+                break;
+            case 'o':
+                strcpy(outputFilename, optarg);
+                isSetOutputFilename = 1;
+                break;
+            case '?':
+                printf("Error: Unknown option: %c\n", optopt);
+                usage();
+                break;
         }
     }    
 
