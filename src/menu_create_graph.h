@@ -5,6 +5,13 @@
 #define GRAPH_COLOR_MENU_CREATE_GRAPH_H
 
 /**
+ * Print all the names of a graph vertices
+ * 
+ * @param[in] graph
+*/
+void print_graph_vertices(graph_t* graph);
+
+/**
  * Loads the program's vertex creation menu.
  * @param[in] graph
  */

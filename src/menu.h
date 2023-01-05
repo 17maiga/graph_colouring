@@ -22,13 +22,12 @@ int main_menu(llist_t* graphs);
  *
  * @param[in] graphs
  */
+void edit_graph_menu(graph_t* graph);
+
 void create_graph_menu(llist_t* graphs);
 
-/**
- * Print all the names of a graph vertices
- * 
- * @param[in] graph
-*/
-void print_graph_vertices(graph_t* graph);
+void graphs_edit_menu(llist_t* graphs);
+
+void evaluate_a_graph_menu(llist_t* graphs);
 
 #endif // GRAPH_COLOR_UTILS_H

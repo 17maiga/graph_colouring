@@ -29,6 +29,21 @@ graph_t* gph_create();
  */
 void gph_delete(graph_t* graph);
 
+/**
+ * Evaluate the coloration of a graph
+ * 
+ * @param[in] graph
+ * @param[out] int
+*/
+int gph_evaluation(graph_t* graph);
+
+/**
+ * Reset the coloration of a graph
+ * 
+ * @param[in] graph
+*/
+void gph_reset(graph_t* graph);
+
 // Linked list interaction
 
 /**

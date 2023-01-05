@@ -18,6 +18,32 @@ void gph_delete(graph_t* graph) {
     free(graph);
 }
 
+int gph_evaluation(graph_t* graph) {
+    if (graph->order == 0) return 0;
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
+    for (size_t i=0; i < graph->order; i++){
+        if (vertices[i]->colour != 0){
+            llist_t* buffer = vertices[i]->neighbours;
+            while (buffer != NULL && buffer->value != NULL) {
+                if (((vertex_t*)buffer->value)->colour == vertices[i]->colour) {
+                    return 1;
+                }
+                buffer = buffer->next;
+            }
+        }
+    }
+    free(vertices);
+    return 0;
+}
+
+void gph_reset(graph_t* graph) {
+    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
+    for (size_t i=0; i<graph->order; i++) {
+        vertices[i]->colour = 0;
+    }
+    free(vertices);
+}
+
 // Linked list interaction
 
 llist_t* gphllist_insert_rec(llist_t* list, graph_t* graph) {

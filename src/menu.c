@@ -16,32 +16,14 @@ void usage() {
     exit(EXIT_FAILURE);
 }
 
-void print_graph_vertices(graph_t* graph) {
-    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
-    printf("Existing vertices: ");
-    for (size_t i = 0; i < graph->order; i++) {
-        printf("%s ", vertices[i]->name);
-    }
-    printf("\n");
-    free(vertices);
-}
-
 void display_main_menu(llist_t* graphs) {
     printf("%ld graphs loaded.\n", llist_length(graphs));
     printf("=========== Options ===========\n");
     printf("| A. Create a new graph.      |\n");
     printf("| B. Edit an existing graph.  |\n");
     printf("| C. Colour a graph.          |\n");
-    printf("| D. Exit.                    |\n");
-    printf("===============================\n");
-}
-
-void display_graph_creation_menu() {
-    printf("====== Graph creation menu ====\n");
-    printf("| A. Create a vertex.         |\n");
-    printf("| B. Delete a vertex.         |\n");
-    printf("| C. Print existing vertices. |\n");
-    printf("| D. Return to main menu.     |\n");
+    printf("| D. Evaluate a coloration    |\n");
+    printf("| E. Exit.                    |\n");
     printf("===============================\n");
 }
 
@@ -60,11 +42,13 @@ int main_menu(llist_t* graphs) {
             case 'a':
                 while (c != '\n') c = getchar();
                 create_graph_menu(graphs);
+                display_main_menu(graphs);
                 break;
             case 'B':
             case 'b':
                 while (c != '\n') c = getchar();
-                printf("BBB\n");
+                graphs_edit_menu(graphs);
+                display_main_menu(graphs);
                 break;
             case 'C':
             case 'c':
@@ -74,6 +58,12 @@ int main_menu(llist_t* graphs) {
                 break;
             case 'D':
             case 'd':
+                while(c != '\n') c = getchar();
+                evaluate_a_graph_menu(graphs);
+                display_main_menu(graphs);
+                break;
+            case 'E':
+            case 'e':
                 while (c != '\n') c = getchar();
                 printf("Would you like to save your modifications? [Y,N] \n");
                 char c;
@@ -109,37 +99,63 @@ int main_menu(llist_t* graphs) {
     return res;
 }
 
+
+void display_graph_creation_menu() {
+    printf("====== Graph creation menu ====\n");
+    printf("| A. Create a vertex.         |\n");
+    printf("| B. Delete a vertex.         |\n");
+    printf("| C. Print existing vertices. |\n");
+    printf("| D. Return to main menu.     |\n");
+    printf("===============================\n");
+    printf("Please enter your choice: ");
+
+}
+
 void create_graph_menu(llist_t* graphs) {
-    display_graph_creation_menu();
     graph_t* graph = gph_create();
+    edit_graph_menu(graph);
+    gphllist_insert(graphs, graph);
+}
+
+void edit_graph_menu(graph_t* graph) {
+    display_graph_creation_menu();
     int running = 1;
-    int menuBack = 0;
     
     while (running == 1) {
-        if (menuBack == 0) {
-            printf("Please enter your choice: ");
-        }
         char c = getchar();
         
         switch (c) {
             case 'A':
             case 'a':
                 while (c != '\n') c = getchar();
-                menuBack = 0;
                 create_vertex_menu(graph);
                 display_graph_creation_menu();
                 break;
             case 'B':
             case 'b':
                 while (c != '\n') c = getchar();
-                menuBack = 0;
-                delete_vertex_menu(graph);
+                if (graph->order != 0) {
+                    delete_vertex_menu(graph);                
+                } else {
+                    printf("This graph haven't any vertex..\n");
+                }
                 display_graph_creation_menu();
                 break;
             case 'C':
             case 'c':
                 while (c != '\n') c = getchar();
-                printf("CCC\n");
+                if (graph->order != 0) {
+                    vertex_t** vertices = vtxbstree_infix(graph->vertices, graph->order);
+                    printf("\nExisting vertices: ");
+                    for (size_t i = 0; i < graph->order; i++) {
+                        printf("%s ", vertices[i]->name);
+                    }
+                    printf("\n\n");
+                    free(vertices);
+                } else {
+                    printf("no existing vertices\n");
+                }
+                display_graph_creation_menu();
                 break;
             case 'D':
             case 'd':
@@ -148,7 +164,6 @@ void create_graph_menu(llist_t* graphs) {
                 running = 0;
                 break;
             case '\n':
-                menuBack = 1;
                 break;
             default:
                 while (c != '\n') c = getchar();
@@ -157,6 +172,87 @@ void create_graph_menu(llist_t* graphs) {
         }
     }
 
-    gphllist_insert(graphs, graph);
-    display_main_menu(graphs);
+}
+
+
+void display_graph_edit_menu(int nb_graphs) {
+    printf("=== Choose a graph to edit ===\n");
+    for (int i = 1; i <= nb_graphs; i++) {
+        if (nb_graphs < 10) {
+            printf("| %d.                          |\n", i);
+        } else if (nb_graphs < 100) {
+            printf("| %d.                         |\n", i);
+        } else {
+            printf("| %d.                        |\n", i);
+        }        
+    }
+    printf("===============================\n");
+}
+
+void graphs_edit_menu(llist_t* graphs) {
+    int nb_graphs = llist_length(graphs);
+    printf("%d graphs loaded.\n", nb_graphs);
+    display_graph_edit_menu(nb_graphs);
+
+    int which_graph;
+    char buffer[3];
+    int c, bufflen = 0;
+    printf("Choose the graph: ");
+    while ((c = getchar()) != '\n') {
+        if ('0' <= c && c <= '9') {
+            buffer[bufflen++] = c;
+        }
+    }
+    sscanf(buffer, "%d", &which_graph);
+    if (which_graph <= nb_graphs) {
+        graph_t* graph = gphllist_get(graphs, which_graph -1);
+        edit_graph_menu(graph);
+    } else {
+        printf("Error, this graph does not exist..\n");
+        printf("No changes made.\n");
+    }
+}
+
+
+void display_graph_evaluate_menu(int nb_graphs) {
+    printf("==== Choose a graph please ====\n");
+    for (int i = 1; i <= nb_graphs; i++) {
+        if (nb_graphs < 10) {
+            printf("| %d.                          |\n", i);
+        } else if (nb_graphs < 100) {
+            printf("| %d.                         |\n", i);
+        } else {
+            printf("| %d.                        |\n", i);
+        }        
+    }
+    printf("===============================\n");
+}
+
+void evaluate_a_graph_menu(llist_t* graphs) {
+    int nb_graphs = llist_length(graphs);
+    printf("%d graphs loaded.\n", nb_graphs);
+    display_graph_evaluate_menu(nb_graphs);
+
+    int which_graph;
+    char buffer[3];
+    int c, bufflen = 0;
+    printf("Choose the graph: ");
+    while ((c = getchar()) != '\n') {
+        if ('0' <= c && c <= '9') {
+            buffer[bufflen++] = c;
+        }
+    }
+    sscanf(buffer, "%d", &which_graph);
+    if (which_graph <= nb_graphs) {
+        graph_t* graph = gphllist_get(graphs, which_graph -1);
+        int evaluation = gph_evaluation(graph);
+        if (evaluation == 0) {
+            printf("Graph %d is correctly coloured\n", which_graph);
+        } else {
+            printf("Graph %d is incorrectly coloured\n", which_graph);
+        }
+    } else {
+        printf("Error, this graph does not exist..\n");
+        printf("No changes made.\n");
+    }
 }

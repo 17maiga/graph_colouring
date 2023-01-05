@@ -84,10 +84,12 @@ vertex_t* vtx_create() {
 
 void vtx_delete(vertex_t* vertex) {
     llist_t* buffer = vertex->neighbours;
-    while (buffer != NULL)
+    while (buffer != NULL) {
         if (buffer->value != NULL)
             ((vertex_t*) buffer->value)->neighbours = vtxllist_remove(
                 ((vertex_t*) buffer->value)->neighbours, vertex);
+        buffer = buffer->next;
+    }
     free(vertex->name);
     vtxllist_delete(vertex->neighbours);
     free(vertex);
