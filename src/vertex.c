@@ -323,9 +323,9 @@ int vtx_get_uncoloured_order(vertex_t* vertex) {
 }
 
 vertex_t* vtx_get_highest_dsatur(vertex_t** vertices, size_t vertex_count) {
-    vertex_t* vertex = NULL;
-    int highest_dsatur = 0;
-    for (size_t i = 0; i < vertex_count; i++) {
+    vertex_t* vertex = vertices[0];
+    int highest_dsatur = vtx_get_dsatur(vertices[0]);
+    for (size_t i = 1; i < vertex_count; i++) {
         int dsatur = vtx_get_dsatur(vertices[i]);
         if ((dsatur > highest_dsatur) ||
             (dsatur == highest_dsatur &&

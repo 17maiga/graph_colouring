@@ -74,11 +74,12 @@ int main(int argc, char** argv) {
             fclose(output_file);
         } else {
             int i = 0;
+            int fileNameLength = strlen(outputFilename);
             while (graphs != NULL && graphs->value != NULL) {
                 char tmp[10];
                 sprintf(tmp, "%d", i+1);
-                strcpy(outputFilename + strlen(argv[argc -1]), tmp);
-                printf("%s", outputFilename);
+                strcpy(outputFilename + fileNameLength, tmp);
+                printf("%s\n", outputFilename);
                 // Write output file
                 FILE* output_file = fopen(outputFilename, "w");
                 gph_write(output_file, (graph_t*) graphs->value);

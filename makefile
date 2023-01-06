@@ -9,7 +9,7 @@ SOURCES := $(shell find $(SRC_DIR) -type f -name *.$(SRC_EXT))
 OBJECTS := $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(SOURCES:.$(SRC_EXT)=.o))
 CFLAGS := -g -Wall -Wextra
 INC := -I inc
-ARGS := res/graph.txt -i
+ARGS := res/graph.txt
 
 # Execution command
 # Builds the executable if needed and runs it
